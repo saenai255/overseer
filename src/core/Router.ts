@@ -2,20 +2,26 @@ import Route from "./Route";
 import http, { IncomingMessage, ServerResponse } from "http";
 import Abstracts from "./Abstracts";
 import CoreError from "./CoreError";
+import ResourceManager from "./ResourceManager";
 
 export default class Router {
     public routes: Route[];
 
-    constructor(private port: number) {
+    constructor(private port: number, private resourceMgr: ResourceManager) {
         this.routes = [];
     }
 
     public init(): void {
         const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
-            const route = this.routes.find((r: Route) => this.routeMatches(req.url, r.path) && req.method.toLowerCase() === r.method.toLowerCase())
+            const route = this.routes.find((r: Route) => this.routeMatches(req.url, r.path) && req.method.toLowerCase() === r.method.toLowerCase());
             if(!!route) {
                 this.routeMatched(req, res, route);
                 return;
+            }
+
+            if(req.method.toLowerCase() === 'get' && this.resourceMgr.fileExists(this.getBaseUrl(req.url))) {
+              this.resourceMgr.handleRequest(this.getBaseUrl(req.url), res);
+              return;
             }
 
             console.debug(`Router:\t\tRoute '${req.url}' could not be handled`);
@@ -24,6 +30,10 @@ export default class Router {
         });
 
         server.listen(this.port, () => console.log("Application:\tDevelopment started on port " + this.port));
+    }
+
+    private getBaseUrl(url: string): string {
+        return url.split('?')[0].split('#')[0];
     }
 
     private routeMatched(req: IncomingMessage, res: ServerResponse, route: Route): void {
@@ -73,7 +83,7 @@ export default class Router {
     }
 
     private routeMatches(baseUrl: string, basePattern: string): boolean {
-        let url = baseUrl.split('?')[0];
+        let url = this.getBaseUrl(baseUrl);
         let pattern = basePattern;
 
         if(url.endsWith('/') && url.length >= 2) {

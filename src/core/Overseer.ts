@@ -1,6 +1,8 @@
 import fs from "fs";
 import Router from "./Router";
 import Route from "./Route";
+import ResourceManager from "./ResourceManager";
+import MimeFinder from "../utils/MimeFinder";
 
 export default class Overseer {
 
@@ -49,9 +51,13 @@ export default class Overseer {
     private prerequisites: any[] = [];
     private instances: any[] = [];
 
-    constructor(basePath: string, port: number) {
+    private constructor(basePath: string, port: number) {
         this.basePath = basePath;
-        this.router = new Router(port);
+
+        const mimeFinder = new MimeFinder();
+        const resMgr = new ResourceManager(basePath, mimeFinder);
+
+        this.router = new Router(port, resMgr);
         console.info(`Overseer:\tInitialized in base directory ${basePath}`);
     }
 

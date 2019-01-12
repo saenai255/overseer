@@ -6,6 +6,7 @@
     "outDir": "build/main",
     "rootDir": "src",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "module": "commonjs",
     "declaration": true,
     "inlineSourceMap": true,
