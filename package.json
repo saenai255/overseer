@@ -1,11 +1,11 @@
 {
-  "name": "com.paulcsoft.flare",
-  "version": "1.0.0",
+  "name": "@jeaks03/overseer",
+  "version": "1.0.7",
   "description": "ts test",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/paulcosma97/com.paulcsoft.flare",
+  "repository": "https://github.com/paulcosma97/overseer",
   "license": "MIT",
   "keywords": [],
   "scripts": {
@@ -49,9 +49,6 @@
   },
   "engines": {
     "node": ">=8.9"
-  },
-  "dependencies": {
-    "sha.js": "^2.4.11"
   },
   "devDependencies": {
     "ava": "1.0.0-beta.7",

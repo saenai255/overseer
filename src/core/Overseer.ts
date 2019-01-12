@@ -4,10 +4,10 @@ import Route from "./Route";
 
 export default class Overseer {
 
-    public static emerge(port: number): void {
-        const paths = module.parent.filename.split('\\');
-        const baseDir = module.parent.filename.replace(paths[paths.length - 1], '');
-        
+    public static emerge(nodeModule: NodeModule, port: number): void {
+        const paths = nodeModule.filename.split('\\');
+        const baseDir = nodeModule.filename.replace(paths[paths.length - 1], '');
+
         const instance = new Overseer(baseDir, port);
         Overseer.instance = instance;
         instance.loadClasses();
@@ -23,38 +23,38 @@ export default class Overseer {
 
         return Overseer.instance.instances.find(x => x.__proto__.constructor.name === name) as T;
     }
-    
+
     public static addRequisite(instance: any): void {
         if(!Overseer.instance) {
             throw new Error('Overseer:\tCould not find instance');
         }
-        
+
         Overseer.instance.instances.push(instance);
     }
-    
+
     public static getRouter(): Router {
         if(!Overseer.instance) {
             throw new Error('Overseer:\tCould not find instance');
         }
-        
+
         return Overseer.instance.router;
     }
 
     private static instance: Overseer;
-    
-    
+
+
     private router: Router;
 
     private basePath: string;
     private prerequisites: any[] = [];
     private instances: any[] = [];
-    
+
     constructor(basePath: string, port: number) {
         this.basePath = basePath;
         this.router = new Router(port);
         console.info(`Overseer:\tInitialized in base directory ${basePath}`);
     }
-    
+
     private setupRouter(): void {
         this.router.routes.forEach((route: Route) => {
             const controller = Overseer.getRequisite(route.handlerName);
@@ -85,7 +85,7 @@ export default class Overseer {
                 }
             });
         }
-        
+
         this.instances.push(...created);
     }
 

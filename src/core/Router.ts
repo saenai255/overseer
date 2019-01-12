@@ -53,7 +53,7 @@ export default class Router {
 
                 if(e instanceof CoreError) {
                     responseBody = e.handle(abstract);
-                    statusCode = e.statusCode;
+                    statusCode = e.getStatusCode();
                 } else {
                     console.error(e);
                     statusCode = 500;
