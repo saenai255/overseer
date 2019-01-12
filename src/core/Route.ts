@@ -16,7 +16,7 @@ export default class Route {
     }
 
     public handle(args: any): any {
-        const controller = Overseer.instance.getRequisite(this.handlerName);
+        const controller = Overseer.getRequisite(this.handlerName);
         return this.handler.apply(controller, [args]);
     }
 }

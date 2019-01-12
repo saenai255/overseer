@@ -4,16 +4,14 @@ import Abstracts from "./Abstracts";
 
 export default class Router {
     public routes: Route[];
-    public port: number;
 
-    constructor(port: number) {
+    constructor(private port: number) {
         this.routes = [];
-        this.port = port;
     }
 
     public init(): void {
         const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
-            const route = this.routes.find((r: Route) => this.routeMatches(req.url, r.path) && req.method.toLowerCase() === r.method.toLowerCase()) 
+            const route = this.routes.find((r: Route) => this.routeMatches(req.url, r.path) && req.method.toLowerCase() === r.method.toLowerCase())
             if(!!route) {
                 this.routeMatched(req, res, route);
                 return;
@@ -55,7 +53,7 @@ export default class Router {
     private routeMatches(baseUrl: string, basePattern: string): boolean {
         let url = baseUrl.split('?')[0];
         let pattern = basePattern;
-        
+
         if(url.endsWith('/') && url.length >= 2) {
             url = url.substring(0, url.length - 2);
         }
@@ -91,7 +89,7 @@ export default class Router {
         let url = baseUrl;
         let pattern = basePattern;
         const out = {};
-        
+
         if(url.endsWith('/') && url.length >= 2) {
             url = url.substring(0, url.length - 2);
         }

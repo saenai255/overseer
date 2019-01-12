@@ -1,20 +1,16 @@
 import Requisite from "../core/Requisite";
 import SomeService from "./SomeService";
 import Sample from "./Sample";
-import Pathway, { WayDetails } from "../core/Pathway";
+import Pathway from "../core/Pathway";
 import Abstracts from "../core/Abstracts";
-import LifeCycle from "../core/LifeCycle";
+import OnInit from "../core/OnInit";
 import Greeting from "./Greeting";
 
 @Requisite
-export default class ExampleController implements LifeCycle {
-    private prerequisites: any[] = [
-        SomeService, Sample
-    ];
-    
-    private someService: SomeService;
-    private sample: Sample;
-    
+export default class ExampleController implements OnInit {
+    constructor(private someService: SomeService,
+        private sample: Sample) {}
+
     public onInit(): void {
         console.log('i got instantiated')
     }

@@ -11,7 +11,7 @@ export default function Pathway(baseDetails?: WayDetails): any {
     // tslint:disable-next-line
     return function(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
         // Overseer.instance.router.routes.push({path, method, handler: descriptor.value, handlerName: target.constructor.name})
-        Overseer.instance.router.routes.push(new Route(details.path, details.method, descriptor.value, target.constructor.name, details.statusCode));
+        Overseer.getRouter().routes.push(new Route(details.path, details.method, descriptor.value, target.constructor.name, details.statusCode));
 
         console.info(`Waypoint:\tMapped endpoint [ ${details.method.toUpperCase()}, '${details.path}' ] to ${target.constructor.name}#${descriptor.value.name}(..) handler`);
         return descriptor;

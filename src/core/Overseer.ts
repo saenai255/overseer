@@ -3,8 +3,7 @@ import Router from "./Router";
 import Route from "./Route";
 
 export default class Overseer {
-    public static instance: Overseer;
-    
+
     public static emerge(port: number): void {
         const paths = module.parent.filename.split('\\');
         const baseDir = module.parent.filename.replace(paths[paths.length - 1], '');
@@ -12,11 +11,39 @@ export default class Overseer {
         const instance = new Overseer(baseDir, port);
         Overseer.instance = instance;
         instance.loadClasses();
+        instance.instances = [ instance, instance.router ];
         instance.createInstances();
         instance.setupRouter();
     }
+
+    public static getRequisite<T>(name: string): T {
+        if(!Overseer.instance) {
+            throw new Error('Overseer:\tCould not find instance');
+        }
+
+        return Overseer.instance.instances.find(x => x.__proto__.constructor.name === name) as T;
+    }
     
-    public router: Router;
+    public static addRequisite(instance: any): void {
+        if(!Overseer.instance) {
+            throw new Error('Overseer:\tCould not find instance');
+        }
+        
+        Overseer.instance.instances.push(instance);
+    }
+    
+    public static getRouter(): Router {
+        if(!Overseer.instance) {
+            throw new Error('Overseer:\tCould not find instance');
+        }
+        
+        return Overseer.instance.router;
+    }
+
+    private static instance: Overseer;
+    
+    
+    private router: Router;
 
     private basePath: string;
     private prerequisites: any[] = [];
@@ -27,23 +54,18 @@ export default class Overseer {
         this.router = new Router(port);
         console.info(`Overseer:\tInitialized in base directory ${basePath}`);
     }
-
-    public setupRouter(): void {
+    
+    private setupRouter(): void {
         this.router.routes.forEach((route: Route) => {
-            const controller = this.getRequisite(route.handlerName);
+            const controller = Overseer.getRequisite(route.handlerName);
             route.handler.bind(controller);
         })
         this.router.init();
     }
 
-    public getRequisite(name: string): any {
-        return this.instances.find(x => x.__proto__.constructor.name === name);
-    }
-
-    public createInstances(): void {
+    private createInstances(): void {
         const created = [];
         let waiting = [];
-        this.instances = [];
 
         this.prerequisites.forEach(clazz => {
             waiting.push(new clazz());
@@ -67,17 +89,17 @@ export default class Overseer {
         this.instances.push(...created);
     }
 
-    public checkAndAddDependencies(instance: any, created: any[]): void {
+    private checkAndAddDependencies(instance: any, created: any[]): void {
         created.forEach(c => {
-            if(instance.prerequisites.includes(c.constructor)) {
+            if(instance.prerequisites.includes(c.constructor.name)) {
                 const propName = c.constructor.name[0].toLowerCase() + c.constructor.name.substring(1);
                 instance[propName] = c;
-                instance.prerequisites = instance.prerequisites.filter(x => x !== c.constructor);
+                instance.prerequisites = instance.prerequisites.filter(x => x !== c.constructor.name);
             }
         });
     }
 
-    public loadClasses(): void {
+    private loadClasses(): void {
         this.prerequisites = [];
 
         const files = this.sourceFiles(this.basePath);
