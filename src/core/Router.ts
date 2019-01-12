@@ -1,6 +1,7 @@
 import Route from "./Route";
 import http, { IncomingMessage, ServerResponse } from "http";
 import Abstracts from "./Abstracts";
+import CoreError from "./CoreError";
 
 export default class Router {
     public routes: Route[];
@@ -27,6 +28,8 @@ export default class Router {
 
     private routeMatched(req: IncomingMessage, res: ServerResponse, route: Route): void {
         let body = '';
+        let statusCode = route.statusCode;
+        let responseBody;
 
         req.on('data', chunk => {
             body += chunk.toString();
@@ -41,12 +44,31 @@ export default class Router {
                 },
                 pathParams: this.parsePathParams(req.url, route.path),
                 queryParams: this.parseQueryParams(req.url)
+            };
+
+
+          try {
+              responseBody = route.handle(abstract);
+            } catch (e) {
+
+                if(e instanceof CoreError) {
+                    responseBody = e.handle(abstract);
+                    statusCode = e.statusCode;
+                } else {
+                    console.error(e);
+                    statusCode = 500;
+                    responseBody = {
+                      error: (e as Error).stack,
+                      timestamp: new Date(),
+                      status: 500
+                    }
+                }
             }
 
-            res.writeHead(route.statusCode, {'Content-Type': 'application/json'})
-            const result = route.handle(abstract);
-            res.write(JSON.stringify(result));
-            res.end();
+            res.writeHead(statusCode, {'Content-Type': 'application/json'});
+            res.write(!responseBody ? JSON.stringify({}) : JSON.stringify(responseBody));
+          res.end();
+
         });
     }
 

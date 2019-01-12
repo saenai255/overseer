@@ -5,6 +5,7 @@ import Pathway from "../core/Pathway";
 import Abstracts from "../core/Abstracts";
 import OnInit from "../core/OnInit";
 import Greeting from "./Greeting";
+import DemoError from "./DemoError";
 
 @Requisite
 export default class ExampleController implements OnInit {
@@ -12,11 +13,13 @@ export default class ExampleController implements OnInit {
         private sample: Sample) {}
 
     public onInit(): void {
-        console.log('i got instantiated')
+        console.log('i got instantiated');
     }
 
     @Pathway({path: '/home'})
     public index(): any {
+        throw new DemoError();
+
         return {
             message: this.someService.sayHello()
         };
