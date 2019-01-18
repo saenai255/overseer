@@ -36,6 +36,8 @@
     "no-unused-locals": false,
     "ordered-imports": false,
     "max-classes-per-file":false,
-    "object-literal-sort-keys":false
+    "object-literal-sort-keys":false,
+    "typedef": false,
+    "member-ordering":false
   }
 }

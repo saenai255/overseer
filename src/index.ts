@@ -1,10 +1,12 @@
 import Overseer from "./core/Overseer";
-import Router from "./core/Router";
-import Pathway, {WayDetails} from "./core/Pathway";
-import CoreError from "./core/CoreError";
-import Requisite from "./core/Requisite";
-import Route from "./core/Route";
-import Abstracts from "./core/Abstracts";
+import Router from "./routing/Router";
+import Pathway, {WayDetails} from "./decorators/Pathway";
+import CoreError from "./errors/CoreError";
+import Requisite from "./decorators/Requisite";
+import Route from "./routing/Route";
+import Abstracts from "./utils/Abstracts";
+import Controller from "./routing/Controller"
+import Redirect from "./routing/Redirect"
 
 export {
   Overseer,
@@ -14,5 +16,7 @@ export {
   CoreError,
   Requisite,
   Abstracts,
-  WayDetails
+  WayDetails,
+  Controller,
+  Redirect
 };

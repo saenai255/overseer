@@ -1,13 +1,12 @@
-import Overseer from "./Overseer";
-import Route from "./Route";
+import Overseer from "../core/Overseer";
+import Route from "../routing/Route";
 
 /**
  * Used to specify an endpoint
- * @default asd
  */
 export default function Pathway(baseDetails?: WayDetails): any {
     const details = WayDetails.defaults(baseDetails);
-    
+
     // tslint:disable-next-line
     return function(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
         // Overseer.instance.router.routes.push({path, method, handler: descriptor.value, handlerName: target.constructor.name})
@@ -20,7 +19,7 @@ export default function Pathway(baseDetails?: WayDetails): any {
 
 
 export class WayDetails {
-    
+
     public static defaults(details: WayDetails): WayDetails {
         const out = {
             path: '/',
@@ -46,7 +45,7 @@ export class WayDetails {
 
         return out;
     }
-    
+
     public path?: string = '/';
     public method?: string = 'get';
     public statusCode?: number = 200;

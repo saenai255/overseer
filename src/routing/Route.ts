@@ -1,4 +1,4 @@
-import Overseer from "./Overseer";
+import Overseer from "../core/Overseer";
 
 export default class Route {
     public method: string;

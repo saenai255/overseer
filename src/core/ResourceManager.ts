@@ -35,7 +35,7 @@ export default class ResourceManager {
   }
 
   public handleRequest(baseUrl: string, res: ServerResponse): void {
-    const url = fs.lstatSync(path.join(this.resourcePath, baseUrl)).isFile() ? baseUrl : baseUrl + 'index.html';
+    const url = fs.lstatSync(path.join(this.resourcePath, baseUrl)).isFile() ? baseUrl : baseUrl + '/index.html';
     const data = url.split(".");
     const extension = "." + data[data.length - 1];
 

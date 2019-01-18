@@ -1,12 +1,12 @@
 import fs from "fs";
-import Router from "./Router";
-import Route from "./Route";
+import Router from "../routing/Router";
+import Route from "../routing/Route";
 import ResourceManager from "./ResourceManager";
 import MimeFinder from "../utils/MimeFinder";
 
 export default class Overseer {
 
-    public static emerge(nodeModule: NodeModule, port: number): void {
+    public static serve(nodeModule: NodeModule, port: number): void {
         const paths = nodeModule.filename.split('\\');
         const baseDir = nodeModule.filename.replace(paths[paths.length - 1], '');
 
