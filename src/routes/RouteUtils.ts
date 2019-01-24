@@ -112,7 +112,4 @@ export default class RouteUtils {
 
         return value;
     }
-
-    
-
 }

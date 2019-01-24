@@ -38,6 +38,8 @@
     "max-classes-per-file":false,
     "object-literal-sort-keys":false,
     "typedef": false,
-    "member-ordering":false
-  }
+    "member-ordering":false,
+    "member-access": false,
+    "no-empty": false,
+    "callable-types": false
 }

@@ -1,6 +1,6 @@
 import fs from "fs";
 import {ServerResponse} from "http";
-import MimeFinder from "../utils/MimeFinder";
+import MimeFinder from "../misc/MimeFinder";
 import path from 'path';
 
 export default class ResourceManager {

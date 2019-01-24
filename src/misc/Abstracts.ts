@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export default class Abstracts {
+export default class Abstracts<B, P, Q> {
     public raw: RawAbstracts;
-    public body: any;
-    public queryParams: any;
-    public pathParams: any;
+    public body: B;
+    public queryParams: Q;
+    public pathParams: P;
 }
 
 export class RawAbstracts {

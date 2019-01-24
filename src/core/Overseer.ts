@@ -1,29 +1,70 @@
 import fs from "fs";
-import Router from "../routing/Router";
-import Route from "../routing/Route";
+import Router from "../routes/Router";
+import Route from "../routes/Route";
 import ResourceManager from "./ResourceManager";
-import MimeFinder from "../utils/MimeFinder";
+import MimeFinder from "../misc/MimeFinder";
+import DependencyUtils from "./DependencyUtils";
+import { Class } from "../misc/CustomTypes"
+import Converter from "../converters/Converter";
+import Authorization from "../security/Authorization";
 
 export default class Overseer {
+    private static instance: Overseer;
+    
+    private router: Router;
+    private basePath: string;
+    private requisiteClasses: any[] = [];
+    private requisiteInstances: any[] = [];
 
-    public static serve(nodeModule: NodeModule, port: number): void {
-        const paths = nodeModule.filename.split('\\');
-        const baseDir = nodeModule.filename.replace(paths[paths.length - 1], '');
+    private constructor(basePath: string, port: number) {
+        this.basePath = basePath;
+        this.router = new Router(port, new ResourceManager(basePath,  new MimeFinder()));
+        this.requisiteInstances = [];
 
-        const instance = new Overseer(baseDir, port);
-        Overseer.instance = instance;
-        instance.loadClasses();
-        instance.instances = [ instance, instance.router ];
-        instance.createInstances();
-        instance.setupRouter();
+        console.info(`Overseer:\tInitialized in base directory ${basePath}`);
     }
 
-    public static getRequisite<T>(name: string): T {
+    public static serve(nodeModule: NodeModule, port: number): void {
+        const instance = new Overseer(DependencyUtils.getBaseDir(nodeModule.filename), port);
+        Overseer.instance = instance;
+
+        instance.loadClasses();
+        instance.loadPrerequisites();
+        instance.createInstances();
+        instance.setupRouter();
+        instance.performLifeCycles();
+    }
+
+    public static getAuthorization(): Authorization {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tCould not find instance');
+            throw new Error('Overseer:\tNot yet instantiated');
         }
 
-        return Overseer.instance.instances.find(x => x.__proto__.constructor.name === name) as T;
+        return Overseer.instance.requisiteInstances.find(x => x.isAuthorization) as Authorization;
+    }
+
+    public static getConverters(): Converter[] {
+        if(!Overseer.instance) {
+            throw new Error('Overseer:\tNot yet instantiated');
+        }
+
+        return Overseer.instance.requisiteInstances.filter(x => x.isConverter) as Converter[];
+    }
+
+    public static getRequisite<T>(clazz: Class<T>): T {
+        if(!Overseer.instance) {
+            throw new Error('Overseer:\tNot yet instantiated');
+        }
+
+        return this.getRequisiteByName<T>(clazz.name);
+    }
+
+    public static getRequisiteByName<T>(name: string): T {
+        if(!Overseer.instance) {
+            throw new Error('Overseer:\tNot yet instantiated');
+        }
+
+        return Overseer.instance.requisiteInstances.find(x => x.__proto__.constructor.name === name) as T;
     }
 
     public static addRequisite(instance: any): void {
@@ -31,7 +72,7 @@ export default class Overseer {
             throw new Error('Overseer:\tCould not find instance');
         }
 
-        Overseer.instance.instances.push(instance);
+        Overseer.instance.requisiteInstances.push(instance);
     }
 
     public static getRouter(): Router {
@@ -42,57 +83,54 @@ export default class Overseer {
         return Overseer.instance.router;
     }
 
-    private static instance: Overseer;
+    private performLifeCycles(): void {
+        this.requisiteInstances.forEach(instance => this.handleLifeCycle(instance));
 
+    }
 
-    private router: Router;
-
-    private basePath: string;
-    private prerequisites: any[] = [];
-    private instances: any[] = [];
-
-    private constructor(basePath: string, port: number) {
-        this.basePath = basePath;
-
-        const mimeFinder = new MimeFinder();
-        const resMgr = new ResourceManager(basePath, mimeFinder);
-
-        this.router = new Router(port, resMgr);
-        console.info(`Overseer:\tInitialized in base directory ${basePath}`);
+    private loadPrerequisites(): void {
+        this.requisiteInstances.push(this, this.router);
     }
 
     private setupRouter(): void {
         this.router.routes.forEach((route: Route) => {
-            const controller = Overseer.getRequisite(route.handlerName);
+            const controller = Overseer.getRequisiteByName(route.handlerName);
             route.handler.bind(controller);
         })
         this.router.init();
     }
 
     private createInstances(): void {
-        const created = [];
         let waiting = [];
 
-        this.prerequisites.forEach(clazz => {
+        this.requisiteClasses.forEach(clazz => {
             waiting.push(new clazz());
         });
 
         while(waiting.length !== 0) {
             waiting.forEach(instance => {
-                this.checkAndAddDependencies(instance, created);
+                this.checkAndAddDependencies(instance, this.requisiteInstances);
 
                 if(!instance.prerequisites || instance.prerequisites.length === 0) {
-                    created.push(instance);
-                    if(!!instance.__proto__.onInit) {
-                        instance.__proto__.onInit.bind(instance).call();
-                    }
-
+                    this.requisiteInstances.push(instance);
                     waiting = waiting.filter(x => x !== instance);
                 }
             });
         }
+    }
 
-        this.instances.push(...created);
+    private handleLifeCycle(instance: any) {
+        // onInit
+        if(!!instance.__proto__.onInit) {
+            instance.__proto__.onInit.bind(instance).call();
+        }
+
+
+        // is configurer
+        if(!!instance.__proto__.initialize) {
+            const requisites: any[] = instance.__proto__.initialize.bind(instance).call();
+            this.requisiteInstances.push(...requisites);
+        }
     }
 
     private checkAndAddDependencies(instance: any, created: any[]): void {
@@ -106,8 +144,7 @@ export default class Overseer {
     }
 
     private loadClasses(): void {
-        this.prerequisites = [];
-
+        this.requisiteClasses = [];
         const files = this.sourceFiles(this.basePath);
 
         files.forEach(file => {
@@ -117,14 +154,14 @@ export default class Overseer {
                 return;
             }
 
-            if(this.prerequisites.includes(clazz.default)) {
+            if(this.requisiteClasses.includes(clazz.default)) {
                 return;
             }
 
-            this.prerequisites.push(clazz.default)
+            this.requisiteClasses.push(clazz.default)
         });
 
-        console.info(`Overseer:\tFound a total of ${this.prerequisites.length} prerequisites`);
+        console.info(`Overseer:\tFound a total of ${this.requisiteClasses.length} prerequisites`);
     }
 
     private isDirectory(path): boolean {
