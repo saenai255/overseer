@@ -17,7 +17,7 @@ export default class Authorizer {
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {
         for (const guard of route.details.guards) {
-            if(!(new guard()).canAccess(this.auth.getUser(info), info)) {
+            if(!(new guard()).canAccess(this.auth.authenticate(info), info)) {
                 throw new RouterError(UNAUTHORIZED);
             }
         }

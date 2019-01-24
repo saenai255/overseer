@@ -6,5 +6,5 @@ export default abstract class Authentication {
     constructor(protected userProvider: (username: string) => UserDetails) {
     }
 
-    public abstract getUser(info: Abstracts<any, any, any>): UserDetails;
+    public abstract authenticate(info: Abstracts<any, any, any>): UserDetails;
 }

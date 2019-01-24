@@ -5,7 +5,7 @@ import UserDetails from "../UserDetails";
 
 export default class NoAuth extends Authentication {
 
-    public getUser(info: Abstracts<any, any, any>): UserDetails {
+    public authenticate(info: Abstracts<any, any, any>): UserDetails {
         return null;
     }
 

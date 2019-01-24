@@ -5,7 +5,7 @@ import HttpError from "../../errors/HttpError";
 import { UNAUTHORIZED } from "../../misc/StandardResponses";
 
 export default class BasicAuth extends Authentication {
-    public getUser(info: Abstracts<any, any, any>): UserDetails {
+    public authenticate(info: Abstracts<any, any, any>): UserDetails {
         const authHeader = info.raw.request.headers.authorization;
         if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {
             throw new HttpError(UNAUTHORIZED);
