@@ -6,7 +6,7 @@ import MimeFinder from "../misc/MimeFinder";
 import DependencyUtils from "./DependencyUtils";
 import { Class } from "../misc/CustomTypes"
 import Converter from "../converters/Converter";
-import Authorization from "../security/Authorization";
+import Authentication from "../security/authentications/Authentication";
 
 export default class Overseer {
     private static instance: Overseer;
@@ -35,12 +35,12 @@ export default class Overseer {
         instance.performLifeCycles();
     }
 
-    public static getAuthorization(): Authorization {
+    public static getAuthorization(): Authentication {
         if(!Overseer.instance) {
             throw new Error('Overseer:\tNot yet instantiated');
         }
 
-        return Overseer.instance.requisiteInstances.find(x => x.isAuthorization) as Authorization;
+        return Overseer.instance.requisiteInstances.find(x => x instanceof Authentication);
     }
 
     public static getConverters(): Converter[] {

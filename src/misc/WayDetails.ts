@@ -1,4 +1,4 @@
-import Guard from "../security/Guard";
+import Guard from "../security/guards/Guard";
 import { Class } from "./CustomTypes";
 
 export default class WayDetails {

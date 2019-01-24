@@ -7,12 +7,12 @@ import Route from "./routes/Route";
 import Abstracts from "./misc/Abstracts";
 import Controller from "./routes/Controller"
 import Redirect from "./routes/Redirect"
-import RequisiteInitializer from "./misc/RequisiteInitializer";
+import RequisiteInitializer from "./core/RequisiteInitializer";
 import WayDetails from "./misc/WayDetails";
-import Authorization from "./security/Authorization";
-import AuthenticatedGuard from "./security/AuthenticatedGuard";
-import AnonymousGuard from "./security/AnonymousGuard";
-import Guard from "./security/Guard";
+import Authentication from "./security/authentications/Authentication";
+import AuthenticatedGuard from "./security/guards/AuthenticatedGuard";
+import AnonymousGuard from "./security/guards/AnonymousGuard";
+import Guard from "./security/guards/Guard";
 
 export {
   Overseer,
@@ -28,6 +28,6 @@ export {
   RequisiteInitializer,
   AuthenticatedGuard,
   AnonymousGuard,
-  Authorization,
+  Authentication,
   Guard
 };

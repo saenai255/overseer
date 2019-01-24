@@ -1,18 +1,18 @@
 import Requisite from "../decorators/Requisite";
-import Authorization from "./Authorization";
-import NoAuth from "./NoAuth";
+import Authentication from "./authentications/Authentication";
+import NoAuth from "./authentications/NoAuth";
 import Overseer from "../core/Overseer";
 import Route from "../routes/Route";
 import Abstracts from "../misc/Abstracts";
-import RouterError from "../errors/RouterError";
-import { UNAUTHORIZED } from "../routes/StandardResponses";
+import RouterError from "../errors/HttpError";
+import { UNAUTHORIZED } from "../misc/StandardResponses";
 
 @Requisite
 export default class Authorizer {
-    private auth: Authorization;
+    private auth: Authentication;
 
     onInit() {
-        this.auth = Overseer.getAuthorization() || new NoAuth();
+        this.auth = Overseer.getAuthorization() || new NoAuth(null);
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {

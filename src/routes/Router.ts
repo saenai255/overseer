@@ -7,9 +7,9 @@ import RouteUtils from "./RouteUtils";
 import Redirect from "./Redirect";
 import { Overseer } from "..";
 import Converter from "../converters/Converter";
-import RouterError from "../errors/RouterError";
+import RouterError from "../errors/HttpError";
 import Response from "./Response";
-import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "./StandardResponses";
+import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
 
 export default class Router {
     public routes: Route[];
