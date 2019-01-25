@@ -34,6 +34,8 @@ export {
   UserDetails,
 };
 
+console.log('here')
+
 if(process.argv[2] === 'overseer-dev') {
   Overseer.serve(module, 8000);
 }

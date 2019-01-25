@@ -38,7 +38,7 @@ export default class Router {
             }
         });
 
-        server.listen(this.port, () => console.log("Application:\tDevelopment started on port " + this.port));
+        server.listen(this.port, () => console.log("Application:\t\tDevelopment started on port " + this.port));
     }
 
     private findRoute(): void {

@@ -3,7 +3,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2017",
-    "outDir": "build/main",
+    "outDir": "build",
     "rootDir": "src",
     "moduleResolution": "node",
     "resolveJsonModule": true,

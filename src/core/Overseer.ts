@@ -21,7 +21,7 @@ export default class Overseer {
         this.router = new Router(port, new ResourceManager(basePath,  new MimeFinder()));
         this.requisiteInstances = [];
 
-        console.info(`Overseer:\tInitialized in base directory ${basePath}`);
+        console.info(`Overseer:\t\tInitialized in base directory ${basePath}`);
     }
 
     public static serve(nodeModule: NodeModule, port: number): void {
@@ -37,7 +37,7 @@ export default class Overseer {
 
     public static getAuthorization(): Authentication {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tNot yet instantiated');
+            throw new Error('Overseer:\t\tNot yet instantiated');
         }
 
         return Overseer.instance.requisiteInstances.find(x => x instanceof Authentication);
@@ -45,7 +45,7 @@ export default class Overseer {
 
     public static getConverters(): Converter[] {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tNot yet instantiated');
+            throw new Error('Overseer:\t\tNot yet instantiated');
         }
 
         return Overseer.instance.requisiteInstances.filter(x => x.isConverter) as Converter[];
@@ -53,7 +53,7 @@ export default class Overseer {
 
     public static getRequisite<T>(clazz: Class<T>): T {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tNot yet instantiated');
+            throw new Error('Overseer:\t\tNot yet instantiated');
         }
 
         return this.getRequisiteByName<T>(clazz.name);
@@ -61,7 +61,7 @@ export default class Overseer {
 
     public static getRequisiteByName<T>(name: string): T {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tNot yet instantiated');
+            throw new Error('Overseer:\t\tNot yet instantiated');
         }
 
         return Overseer.instance.requisiteInstances.find(x => x.__proto__.constructor.name === name) as T;
@@ -69,7 +69,7 @@ export default class Overseer {
 
     public static addRequisite(instance: any): void {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tCould not find instance');
+            throw new Error('Overseer:\t\tCould not find instance');
         }
 
         Overseer.instance.requisiteInstances.push(instance);
@@ -77,7 +77,7 @@ export default class Overseer {
 
     public static getRouter(): Router {
         if(!Overseer.instance) {
-            throw new Error('Overseer:\tCould not find instance');
+            throw new Error('Overseer:\t\tCould not find instance');
         }
 
         return Overseer.instance.router;
@@ -161,7 +161,7 @@ export default class Overseer {
             this.requisiteClasses.push(clazz.default)
         });
 
-        console.info(`Overseer:\tFound a total of ${this.requisiteClasses.length} prerequisites`);
+        console.info(`Overseer:\t\tFound a total of ${this.requisiteClasses.length} prerequisites`);
     }
 
     private isDirectory(path): boolean {

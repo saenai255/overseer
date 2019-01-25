@@ -13,7 +13,7 @@ export default function Pathway(baseDetails?: WayDetails): any {
         // Overseer.instance.router.routes.push({path, method, handler: descriptor.value, handlerName: target.constructor.name})
         Overseer.getRouter().routes.push(new Route(details, descriptor.value, target.constructor.name));
 
-        console.info(`Pathway:\tMapped endpoint [ ${details.method.toUpperCase()}, '${details.path}' ] to ${target.constructor.name}#${descriptor.value.name}(..) handler`);
+        console.info(`Pathway:\t\tMapped endpoint [ ${details.method.toUpperCase()}, '${details.path}' ] to ${target.constructor.name}#${descriptor.value.name}(..) handler`);
         return descriptor;
     }
 };

@@ -6,13 +6,13 @@ import path from 'path';
 export default class ResourceManager {
 
   constructor(private readonly resourcePath: string, private mimeFinder: MimeFinder) {
-    this.resourcePath = path.join(resourcePath, '/../../resources');
+    this.resourcePath = path.join(resourcePath, '/../resources');
 
     if(!fs.existsSync(this.resourcePath)) {
       throw new Error('Resources directory not found. It should be ' + this.resourcePath);
     }
     
-    console.info('ResourceManager:Resources directory set in ' + this.resourcePath);
+    console.info('ResourceManager:\tResources directory set in ' + this.resourcePath);
   }
 
   public fileExists(url: string): boolean {

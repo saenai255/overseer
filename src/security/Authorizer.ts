@@ -14,7 +14,7 @@ export default class Authorizer {
     onInit() {
         this.auth = Overseer.getAuthorization() || new NoAuthentication(null);
 
-        console.info('Authorizer:\tLoaded ' + (<Object>this.auth).constructor.name + ' security');
+        console.info('Authorizer:\t\tLoaded ' + (<Object>this.auth).constructor.name + ' security');
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {
