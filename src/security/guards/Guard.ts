@@ -1,5 +1,5 @@
 import { IncomingMessage } from "http";
-import Abstracts from "../../misc/Abstracts";
+import Abstracts from "../../routes/Abstracts";
 import UserDetails from "../UserDetails";
 
 export default interface Guard {

@@ -88,5 +88,8 @@
     "exclude": [
       "**/*.spec.js"
     ]
+  },
+  "dependencies": {
+    "jsonwebtoken": "^8.4.0"
   }
 }

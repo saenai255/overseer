@@ -1,10 +1,10 @@
 import Authentication from "./Authentication";
-import Abstracts from "../../misc/Abstracts";
+import Abstracts from "../../routes/Abstracts";
 import UserDetails from "../UserDetails";
 import HttpError from "../../errors/HttpError";
 import { UNAUTHORIZED } from "../../misc/StandardResponses";
 
-export default class BasicAuth extends Authentication {
+export default class BasicAuthentication extends Authentication {
     public authenticate(info: Abstracts<any, any, any>): UserDetails {
         const authHeader = info.raw.request.headers.authorization;
         if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {

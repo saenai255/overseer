@@ -1,9 +1,9 @@
 import Requisite from "../decorators/Requisite";
 import Authentication from "./authentications/Authentication";
-import NoAuth from "./authentications/NoAuth";
+import NoAuthentication from "./authentications/NoAuthentication";
 import Overseer from "../core/Overseer";
 import Route from "../routes/Route";
-import Abstracts from "../misc/Abstracts";
+import Abstracts from "../routes/Abstracts";
 import RouterError from "../errors/HttpError";
 import { UNAUTHORIZED } from "../misc/StandardResponses";
 
@@ -12,7 +12,9 @@ export default class Authorizer {
     private auth: Authentication;
 
     onInit() {
-        this.auth = Overseer.getAuthorization() || new NoAuth(null);
+        this.auth = Overseer.getAuthorization() || new NoAuthentication(null);
+
+        console.info('Authorizer:\tLoaded ' + (<Object>this.auth).constructor.name + ' security');
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {

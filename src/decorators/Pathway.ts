@@ -1,6 +1,6 @@
 import Overseer from "../core/Overseer";
 import Route from "../routes/Route";
-import WayDetails from "../misc/WayDetails";
+import WayDetails from "../routes/WayDetails";
 
 /**
  * Used to specify an endpoint

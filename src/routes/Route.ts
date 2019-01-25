@@ -1,7 +1,7 @@
 import Overseer from "../core/Overseer";
-import WayDetails from "../misc/WayDetails";
+import WayDetails from "./WayDetails";
 import Authorizer from "../security/Authorizer";
-import Abstracts from "../misc/Abstracts";
+import Abstracts from "./Abstracts";
 import RouterError from "../errors/HttpError";
 
 export default class Route {

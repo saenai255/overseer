@@ -1,6 +1,6 @@
 import Route from "./Route";
 import http, { IncomingMessage, ServerResponse } from "http";
-import Abstracts from "../misc/Abstracts";
+import Abstracts from "./Abstracts";
 import CoreError from "../errors/CoreError";
 import ResourceManager from "../core/ResourceManager";
 import RouteUtils from "./RouteUtils";
