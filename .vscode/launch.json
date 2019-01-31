@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/build/main/index.js"
+      "program": "${workspaceFolder}/build/index.js"
     },
     {
       "type": "node",
@@ -15,9 +15,9 @@
       "cwd": "${workspaceFolder}/build",
       // Replace this with your project root. If there are multiple, you can
       // automatically run the currently visible file with: "program": ${file}"
-      "program": "${workspaceFolder}/build/main/index.js",//"${workspaceFolder}/src/cli/cli.ts",
+      "program": "${workspaceFolder}/build/index.js",//"${workspaceFolder}/src/cli/cli.ts",
       // "args": ["--no-install"],
-      "outFiles": ["${workspaceFolder}/build/main/**/*.js"],
+      "outFiles": ["${workspaceFolder}/build/**/*.js"],
       "skipFiles": [
         "<node_internals>/**/*.js",
         "${workspaceFolder}/node_modules/**/*.js"

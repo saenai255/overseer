@@ -7,6 +7,10 @@ import DependencyUtils from "./DependencyUtils";
 import { Class } from "../misc/CustomTypes"
 import Converter from "../converters/Converter";
 import Authentication from "../security/authentications/Authentication";
+import Utils from "../misc/Utils";
+import logger from "../misc/Logger";
+import Requisites from "./Requisites";
+import { performance } from "perf_hooks";
 
 export default class Overseer {
     private static instance: Overseer;
@@ -17,25 +21,34 @@ export default class Overseer {
     private requisiteInstances: any[] = [];
 
     private constructor(basePath: string, port: number) {
+        Overseer.instance = this;
         this.basePath = basePath;
         this.router = new Router(port, new ResourceManager(basePath,  new MimeFinder()));
         this.requisiteInstances = [];
 
-        console.info(`Overseer:\t\tInitialized in base directory ${basePath}`);
+        logger.info(this, 'Initialized in base directory {}', basePath);
     }
 
     public static serve(nodeModule: NodeModule, port: number): void {
-        const instance = new Overseer(DependencyUtils.getBaseDir(nodeModule.filename), port);
-        Overseer.instance = instance;
+        const timeStart = performance.now();
 
-        instance.loadClasses();
-        instance.loadPrerequisites();
-        instance.createInstances();
-        instance.setupRouter();
-        instance.performLifeCycles();
+        Overseer.instance = new Overseer(DependencyUtils.getBaseDir(nodeModule.filename), port);
+        Overseer.instance.initialize();
+
+        const timeEnd = performance.now();
+        logger.info(this, 'Application fully loaded in {} seconds', (timeEnd - timeStart) / 1000)
+    }
+    
+    private initialize(): void {
+        logger.info(this, 'im here')
+        this.requisiteClasses = Requisites.findClassesFromSourceFiles(this.basePath);
+        this.loadPrerequisites();
+        this.initializeRequisites();
+        this.setupRouter();
+        this.performLifeCycles();
     }
 
-    public static getAuthorization(): Authentication {
+    public static getAuthentication(): Authentication {
         if(!Overseer.instance) {
             throw new Error('Overseer:\t\tNot yet instantiated');
         }
@@ -51,30 +64,6 @@ export default class Overseer {
         return Overseer.instance.requisiteInstances.filter(x => x.isConverter) as Converter[];
     }
 
-    public static getRequisite<T>(clazz: Class<T>): T {
-        if(!Overseer.instance) {
-            throw new Error('Overseer:\t\tNot yet instantiated');
-        }
-
-        return this.getRequisiteByName<T>(clazz.name);
-    }
-
-    public static getRequisiteByName<T>(name: string): T {
-        if(!Overseer.instance) {
-            throw new Error('Overseer:\t\tNot yet instantiated');
-        }
-
-        return Overseer.instance.requisiteInstances.find(x => x.__proto__.constructor.name === name) as T;
-    }
-
-    public static addRequisite(instance: any): void {
-        if(!Overseer.instance) {
-            throw new Error('Overseer:\t\tCould not find instance');
-        }
-
-        Overseer.instance.requisiteInstances.push(instance);
-    }
-
     public static getRouter(): Router {
         if(!Overseer.instance) {
             throw new Error('Overseer:\t\tCould not find instance');
@@ -84,7 +73,19 @@ export default class Overseer {
     }
 
     private performLifeCycles(): void {
-        this.requisiteInstances.forEach(instance => this.handleLifeCycle(instance));
+        this.requisiteInstances.forEach(instance => {
+            // onInit
+            if(!!instance.__proto__.onInit) {
+                instance.__proto__.onInit.bind(instance).call();
+            }
+
+
+            // is configurer
+            if(!!instance.__proto__.initialize) {
+                const requisites: any[] = instance.__proto__.initialize.bind(instance).call();
+                this.requisiteInstances.push(...requisites);
+            }
+        });
 
     }
 
@@ -94,106 +95,22 @@ export default class Overseer {
 
     private setupRouter(): void {
         this.router.routes.forEach((route: Route) => {
-            const controller = Overseer.getRequisiteByName(route.handlerName);
+            const controller = Requisites.findByName(route.handlerName);
             route.handler.bind(controller);
         })
         this.router.init();
     }
 
-    private createInstances(): void {
+    private initializeRequisites(): void {
         let waiting = [];
-
-        this.requisiteClasses.forEach(clazz => {
-            waiting.push(new clazz());
-        });
+        this.requisiteClasses.forEach(clazz => waiting.push(new clazz()));
 
         while(waiting.length !== 0) {
-            waiting.forEach(instance => {
-                this.checkAndAddDependencies(instance, this.requisiteInstances);
-
-                if(!instance.prerequisites || instance.prerequisites.length === 0) {
-                    this.requisiteInstances.push(instance);
-                    waiting = waiting.filter(x => x !== instance);
-                }
+            waiting.forEach(instance => Requisites.injectInstance(instance));
+            waiting.filter(instance => !instance.prerequisites || instance.prerequisites.length === 0).forEach(instance => {
+                this.requisiteInstances.push(instance);
+                waiting = waiting.filter(x => x !== instance);
             });
         }
     }
-
-    private handleLifeCycle(instance: any) {
-        // onInit
-        if(!!instance.__proto__.onInit) {
-            instance.__proto__.onInit.bind(instance).call();
-        }
-
-
-        // is configurer
-        if(!!instance.__proto__.initialize) {
-            const requisites: any[] = instance.__proto__.initialize.bind(instance).call();
-            this.requisiteInstances.push(...requisites);
-        }
-    }
-
-    private checkAndAddDependencies(instance: any, created: any[]): void {
-        created.forEach(c => {
-            if(instance.prerequisites.includes(c.constructor.name)) {
-                const propName = c.constructor.name[0].toLowerCase() + c.constructor.name.substring(1);
-                instance[propName] = c;
-                instance.prerequisites = instance.prerequisites.filter(x => x !== c.constructor.name);
-            }
-        });
-    }
-
-    private loadClasses(): void {
-        this.requisiteClasses = [];
-        const files = this.sourceFiles(this.basePath);
-
-        files.forEach(file => {
-            const clazz = require(file);
-
-            if(!clazz || !clazz.default || !clazz.default.prototype.isPrerequisite) {
-                return;
-            }
-
-            if(this.requisiteClasses.includes(clazz.default)) {
-                return;
-            }
-
-            this.requisiteClasses.push(clazz.default)
-        });
-
-        console.info(`Overseer:\t\tFound a total of ${this.requisiteClasses.length} prerequisites`);
-    }
-
-    private isDirectory(path): boolean {
-        try {
-            const stat = fs.lstatSync(path);
-            return stat.isDirectory();
-        } catch (e) {
-            return false;
-        }
-    }
-
-    private sourceFiles(path: string): string[] {
-        const out: string[] = [];
-        const files = fs.readdirSync(path);
-
-        for (const file of files) {
-            if(this.isDirectory(path + file)) {
-                const result = this.sourceFiles(path + file + '\\');
-
-                if(result.length !== 0) {
-                    out.push(...result);
-                }
-
-                continue;
-            }
-
-            if(file.endsWith(".js") && file[0].toUpperCase() === file[0]) {
-                out.push(path + file);
-            }
-        }
-
-        return out;
-    }
-
 }

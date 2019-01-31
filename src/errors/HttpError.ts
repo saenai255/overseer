@@ -1,6 +1,7 @@
 import { ServerResponse } from "http";
 import { INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
 import Response from "../routes/Response";
+import logger from "../misc/Logger";
 
 export default class RouterError extends Error {
     constructor(public response: Response){
@@ -8,11 +9,8 @@ export default class RouterError extends Error {
     }
 
     static handleServerError(serverResponse: ServerResponse, e: any) {
-        console.error(e);
-
-        serverResponse.writeHead(500, {'Content-Type': 'application/json'});
-        // serverResponse.write(JSON.stringify(INTERVAL_SERVER_ERROR.body));
-        serverResponse.end();
+        logger.error(this, '%s', e);
+        new RouterError(INTERVAL_SERVER_ERROR).handle(serverResponse);
     }
 
     handle(serverResponse: ServerResponse) {

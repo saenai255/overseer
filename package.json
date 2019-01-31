@@ -2,9 +2,8 @@
   "name": "@jeaks03/overseer",
   "version": "1.1.2",
   "description": "Just another TypeScript Back-End framework",
-  "main": "build/main/index.js",
-  "typings": "build/main/index.d.ts",
-  "module": "build/module/index.js",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
   "repository": "https://github.com/paulcosma97/overseer",
   "license": "MIT",
   "keywords": [],
@@ -17,7 +16,7 @@
     "test:unit": "nyc --silent ava",
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test",
-    "dev": "nodemon -e ts --watch src --exec \"run-s clean && tsc -p tsconfig.json && node build/index.js overseer-dev\""
+    "dev": "nodemon -e ts --watch src --exec \"run-s clean && tsc -p tsconfig.dev.json && node build/index.js overseer-dev\""
   },
   "scripts-info": {
     "info": "Display information about the package scripts",
@@ -47,10 +46,10 @@
   "ava": {
     "failFast": true,
     "files": [
-      "build/main/**/*.spec.js"
+      "build/**/*.spec.js"
     ],
     "sources": [
-      "build/main/**/*.js"
+      "build/**/*.js"
     ]
   },
   "config": {
@@ -67,6 +66,7 @@
     ]
   },
   "dependencies": {
-    "jsonwebtoken": "^8.4.0"
+    "jsonwebtoken": "^8.4.0",
+    "npmlog": "^4.1.2"
   }
 }

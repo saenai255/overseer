@@ -1,8 +1,7 @@
-import Overseer from "../core/Overseer";
 import WayDetails from "./WayDetails";
 import Authorizer from "../security/Authorizer";
 import Abstracts from "./Abstracts";
-import RouterError from "../errors/HttpError";
+import Requisites from "../core/Requisites";
 
 export default class Route {
     public details: WayDetails;
@@ -16,8 +15,8 @@ export default class Route {
     }
 
     public handle(info: Abstracts<any, any, any>): any {
-        const controller = Overseer.getRequisiteByName(this.handlerName);  
-        Overseer.getRequisite(Authorizer).authorizeRoute(this, info);
+        const controller = Requisites.findByName(this.handlerName);  
+        Requisites.find(Authorizer).authorizeRoute(this, info);
 
         return this.handler.apply(controller, [info]);
     }

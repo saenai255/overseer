@@ -10,6 +10,7 @@ import Converter from "../converters/Converter";
 import RouterError from "../errors/HttpError";
 import Response from "./Response";
 import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
+import logger from "../misc/Logger";
 
 export default class Router {
     public routes: Route[];
@@ -37,8 +38,7 @@ export default class Router {
                 }
             }
         });
-
-        server.listen(this.port, () => console.log("Application:\t\tDevelopment started on port " + this.port));
+        server.listen(this.port);
     }
 
     private findRoute(): void {
@@ -125,7 +125,7 @@ export default class Router {
         } else if (e instanceof RouterError){
             output = e.response;
         } else {
-            console.error(e);
+            logger.error(this, '{}', e);
             output = INTERVAL_SERVER_ERROR;
         }
 

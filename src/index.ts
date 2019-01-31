@@ -14,6 +14,7 @@ import AuthenticatedGuard from "./security/guards/AuthenticatedGuard";
 import AnonymousGuard from "./security/guards/AnonymousGuard";
 import Guard from "./security/guards/Guard";
 import UserDetails from "./security/UserDetails";
+import logger from "./misc/Logger";
 
 export {
   Overseer,
@@ -32,9 +33,8 @@ export {
   Authentication,
   Guard,
   UserDetails,
+  logger,
 };
-
-console.log('here')
 
 if(process.argv[2] === 'overseer-dev') {
   Overseer.serve(module, 8000);

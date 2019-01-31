@@ -6,15 +6,15 @@ import Route from "../routes/Route";
 import Abstracts from "../routes/Abstracts";
 import RouterError from "../errors/HttpError";
 import { UNAUTHORIZED } from "../misc/StandardResponses";
+import logger from "../misc/Logger";
 
 @Requisite
 export default class Authorizer {
     private auth: Authentication;
 
     onInit() {
-        this.auth = Overseer.getAuthorization() || new NoAuthentication(null);
-
-        console.info('Authorizer:\t\tLoaded ' + (<Object>this.auth).constructor.name + ' security');
+        this.auth = Overseer.getAuthentication() || new NoAuthentication(null);
+        logger.info(this, 'Loaded {} security', (<Object>this.auth).constructor.name)
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {

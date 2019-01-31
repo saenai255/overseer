@@ -2,6 +2,7 @@ import fs from "fs";
 import {ServerResponse} from "http";
 import MimeFinder from "../misc/MimeFinder";
 import path from 'path';
+import logger from "../misc/Logger";
 
 export default class ResourceManager {
 
@@ -12,7 +13,7 @@ export default class ResourceManager {
       throw new Error('Resources directory not found. It should be ' + this.resourcePath);
     }
     
-    console.info('ResourceManager:\tResources directory set in ' + this.resourcePath);
+    logger.info(this, 'Resources directory set in {}', this.resourcePath);
   }
 
   public fileExists(url: string): boolean {
