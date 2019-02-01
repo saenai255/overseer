@@ -1,15 +1,13 @@
 import fs from "fs";
 import Router from "../routes/Router";
 import Route from "../routes/Route";
-import ResourceManager from "./ResourceManager";
+import Resources from "./Resources";
 import MimeFinder from "../misc/MimeFinder";
-import DependencyUtils from "./DependencyUtils";
-import Converter from "../converters/Converter";
-import Authentication from "../security/authentications/Authentication";
 import logger from "../misc/Logger";
 import Requisites from "./Requisites";
 import { performance } from "perf_hooks";
 import { Class } from "../misc/CustomTypes";
+import path from "path";
 
 export default class Overseer {
     private static instance: Overseer;
@@ -29,7 +27,7 @@ export default class Overseer {
     public static serve(nodeModule: NodeModule, port: number): void {
         const timeStart = performance.now();
 
-        Overseer.instance = new Overseer(DependencyUtils.getBaseDir(nodeModule.filename), port);
+        Overseer.instance = new Overseer(path.join(nodeModule.filename, '..'), port);
         Overseer.instance.init();
 
         const timeEnd = performance.now();
@@ -62,7 +60,8 @@ export default class Overseer {
     }
 
     private loadPrerequisites(): void {
-        this.requisiteInstances.push(this, new Router(this.port, new ResourceManager(this.basePath,  new MimeFinder())));
+        const resources = new Resources(this.basePath,  new MimeFinder());
+        this.requisiteInstances.push(this, resources, new Router(this.port, resources));
     }
 
     private setupRouter(): void {

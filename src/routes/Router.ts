@@ -2,7 +2,7 @@ import Route from "./Route";
 import http, { IncomingMessage, ServerResponse } from "http";
 import Abstracts from "./Abstracts";
 import CoreError from "../errors/CoreError";
-import ResourceManager from "../core/ResourceManager";
+import Resources from "../core/Resources";
 import RouteUtils from "./RouteUtils";
 import Redirect from "./Redirect";
 import { Overseer } from "..";
@@ -20,7 +20,7 @@ export default class Router {
     private serverResponse: ServerResponse;
     private foundRoute: Route;
 
-    constructor(private port: number, private resourceMgr: ResourceManager) {
+    constructor(private port: number, private resourceMgr: Resources) {
         this.routes = [];
     }
 
@@ -50,7 +50,7 @@ export default class Router {
             return;
         }
 
-        if(this.serverRequest.method.toLowerCase() === 'get' && this.resourceMgr.fileExists(RouteUtils.getBaseUrl(this.serverRequest.url))) {
+        if(this.serverRequest.method.toLowerCase() === 'get' && this.resourceMgr.fileOrIndexExists(RouteUtils.getBaseUrl(this.serverRequest.url))) {
           this.resourceMgr.handleRequest(RouteUtils.getBaseUrl(this.serverRequest.url), this.serverResponse);
           return;
         }

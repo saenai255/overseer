@@ -15,6 +15,7 @@ import AnonymousGuard from "./security/guards/AnonymousGuard";
 import Guard from "./security/guards/Guard";
 import UserDetails from "./security/UserDetails";
 import Requisites from "./core/Requisites";
+import Resources from "./core/Resources";
 import logger from "./misc/Logger";
 
 export {
@@ -35,7 +36,8 @@ export {
   Guard,
   UserDetails,
   logger,
-  Requisites
+  Requisites,
+  Resources
 };
 
 if(process.argv[2] === 'overseer-dev') {
