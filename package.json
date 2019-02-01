@@ -66,6 +66,7 @@
     ]
   },
   "dependencies": {
+    "@types/node": "^10.12.21",
     "jsonwebtoken": "^8.4.0",
     "npmlog": "^4.1.2"
   }

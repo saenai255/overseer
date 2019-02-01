@@ -9,33 +9,19 @@ export default class Requisites {
     }
 
     public static add(instance) {
-        Requisites.retrieveList().push(instance);
+        Requisites.all().push(instance);
     }
 
     public static find<T>(clazz: Class<T>): T {
-        return Requisites.retrieveList().find(x => x instanceof clazz);
+        return Requisites.all().find(x => x instanceof clazz);
     }
 
     public static findByName<T>(name: string): T {
-        return Requisites.retrieveList().find(x => x.__proto__.constructor.name === name) as T;
+        return Requisites.all().find(x => x.__proto__.constructor.name === name) as T;
     }
 
     public static findAll<T>(clazz: Class<T>): T[] {
-        return Requisites.retrieveList().filter(x => x instanceof clazz);
-    }
-
-    public static injectClass<T>(clazz: Class<T>): T {
-        return Requisites.injectInstance<any>(new (<any>clazz));
-    }
-
-    public static injectInstance<T>(instance: Exclude<T, Class<T>>): T {
-        Requisites.retrieveList().filter(c => (<any>instance).prerequisites.includes(c.constructor.name)).forEach(c => {
-            const propName = c.constructor.name[0].toLowerCase() + c.constructor.name.substring(1);
-            instance[propName] = c;
-            (<any>instance).prerequisites = (<any>instance).prerequisites.filter(x => x !== c.constructor.name);
-        });
-
-        return instance as T;
+        return Requisites.all().filter(x => x instanceof clazz);
     }
 
     public static findClassesFromSourceFiles(path: string): any[] {
@@ -55,7 +41,7 @@ export default class Requisites {
         return foundClasses;
     }
 
-    private static retrieveList(): any[] {
+    private static all(): any[] {
         const overseer = (<any>Overseer).instance;
 
         if(!overseer) {

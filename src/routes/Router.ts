@@ -11,6 +11,7 @@ import RouterError from "../errors/HttpError";
 import Response from "./Response";
 import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
 import logger from "../misc/Logger";
+import Requisites from "../core/Requisites";
 
 export default class Router {
     public routes: Route[];
@@ -145,7 +146,8 @@ export default class Router {
 
     private findReadConverter(body: string): Converter {
         const type = this.findContentType(this.serverRequest.headers["content-type"], this.foundRoute.details.consumes);
-        const converter =  Overseer.getConverters().find((x: Converter) => x.canRead(body, type));
+        // const converter =  Overseer.getConverters().find((x: Converter) => x.canRead(body, type));
+        const converter =  Requisites.findAll(Converter).find((x: Converter) => x.canRead(body, type));
 
         if(!converter) {
             throw new RouterError(UNSUPPORTED_MEDIA_TYPE);
@@ -156,7 +158,8 @@ export default class Router {
 
     private findWriteConverter(body: any): Converter {
         const type = this.findContentType(this.serverRequest.headers.accept, this.foundRoute.details.produces);
-        const converter =  Overseer.getConverters().find((x: Converter) => x.canRead(body, type));
+        // const converter =  Overseer.getConverters().find((x: Converter) => x.canRead(body, type));
+        const converter =  Requisites.findAll(Converter).find((x: Converter) => x.canRead(body, type));
         
         if(!converter) {
             throw new RouterError(UNSUPPORTED_MEDIA_TYPE);

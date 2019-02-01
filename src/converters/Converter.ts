@@ -1,15 +1,19 @@
 import { Class } from "../misc/CustomTypes";
 
-export default abstract class Converter {
-    private isConverter: boolean;
-
-    constructor() {
-        this.isConverter = true;
+export default class Converter {
+    public canRead(target: string, contentType: string): boolean { 
+        throw new Error('Method not implemented');
     }
 
-    abstract canRead(target: string, contentType: string): boolean;
-    abstract canWrite(target: any, contentType: string): boolean;
+    public canWrite(target: any, contentType: string): boolean { 
+        throw new Error('Method not implemented');
+    }
  
-    abstract doWrite(target: any): string;
-    abstract doRead(target: string): any;
+    public doWrite(target: any): string { 
+        throw new Error('Method not implemented');
+    }
+
+    public doRead(target: string): any { 
+        throw new Error('Method not implemented');
+    }
 }

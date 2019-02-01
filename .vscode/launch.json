@@ -5,7 +5,9 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/build/index.js"
+      "program": "${workspaceFolder}/build/index.js",
+      "args": ["overseer-dev"],
+      "preLaunchTask": "npm: build",
     },
     {
       "type": "node",

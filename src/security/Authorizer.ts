@@ -7,14 +7,15 @@ import Abstracts from "../routes/Abstracts";
 import RouterError from "../errors/HttpError";
 import { UNAUTHORIZED } from "../misc/StandardResponses";
 import logger from "../misc/Logger";
+import Requisites from "../core/Requisites";
 
 @Requisite
 export default class Authorizer {
     private auth: Authentication;
 
     onInit() {
-        this.auth = Overseer.getAuthentication() || new NoAuthentication(null);
-        logger.info(this, 'Loaded {} security', (<Object>this.auth).constructor.name)
+        this.auth = Requisites.find(Authentication) || new NoAuthentication(null);
+        logger.info(this, 'Proceeding with {} security', (<Object>this.auth).constructor.name)
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {
