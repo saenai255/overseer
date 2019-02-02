@@ -18,7 +18,6 @@ export class RequisiteManager {
 
     public addClass(clazz: Class<any>) {
         Requisite(clazz);
-        debugger
         this.classList.push(clazz);
     }
 

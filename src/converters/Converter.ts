@@ -1,6 +1,10 @@
 import { Class } from "../misc/CustomTypes";
 
 export default class Converter {
+    public getContentType(): string {
+        throw new Error('Method not implemented');
+    }
+
     public canRead(target: string, contentType: string): boolean { 
         throw new Error('Method not implemented');
     }

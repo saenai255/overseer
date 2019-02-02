@@ -6,7 +6,7 @@ import Resources from "../core/Resources";
 import RouteUtils from "./RouteUtils";
 import Redirect from "./Redirect";
 import Converter from "../converters/Converter";
-import RouterError from "../errors/HttpError";
+import HttpError from "../errors/HttpError";
 import Response from "./Response";
 import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
 import logger from "../misc/Logger";
@@ -34,7 +34,7 @@ export default class Router {
                 if(!!e.response) {
                     e.handle(this.serverResponse);
                 } else {
-                    RouterError.handleServerError(this.serverResponse, e);
+                    HttpError.handleServerError(this.serverResponse, e);
                 }
             }
         });
@@ -75,7 +75,8 @@ export default class Router {
 
     private writeResponse(output: Response): void {
         const converter = this.findWriteConverter(output.body);
-        this.serverResponse.writeHead(output.status, {'Content-Type': 'application/json'});
+
+        this.serverResponse.writeHead(output.status, {'Content-Type': converter.getContentType()});
         this.serverResponse.write(converter.doWrite(output.body));
         this.serverResponse.end();
     }
@@ -88,18 +89,24 @@ export default class Router {
         });
 
         
-
-            this.serverRequest.on('end', () => {
-                
-                    this.onRequestParsed(requestBody, callback);
-               
-            });
+        this.serverRequest.on('end', () => {
+            try {
+                this.onRequestParsed(requestBody, callback);                
+            } catch(e) {
+                if(!!e.response) {
+                    e.handle(this.serverResponse);
+                } else {
+                    HttpError.handleServerError(this.serverResponse, e);
+                }
+            }
+        });
 
        
     }
 
     private onRequestParsed(body: string, callback: (info: Abstracts<any, any, any>) => void) {
         const messageConverter = this.findReadConverter(body);
+
         const abstract: Abstracts<any, any, any> = {
             body: messageConverter.doRead(body),
             raw: {
@@ -122,7 +129,7 @@ export default class Router {
             output.body = e.handle(info);
             output.status = e.getStatusCode();
 
-        } else if (e instanceof RouterError){
+        } else if (e instanceof HttpError){
             output = e.response;
         } else {
             console.error(e)
@@ -145,23 +152,23 @@ export default class Router {
 
     private findReadConverter(body: string): Converter {
         const type = this.findContentType(this.serverRequest.headers["content-type"], this.foundRoute.details.consumes);
-        // const converter =  Overseer.getConverters().find((x: Converter) => x.canRead(body, type));
         const converter =  Requisites.findAll(Converter).find((x: Converter) => x.canRead(body, type));
 
         if(!converter) {
-            throw new RouterError(UNSUPPORTED_MEDIA_TYPE);
+            throw new HttpError(UNSUPPORTED_MEDIA_TYPE);
         }
+
+        
 
         return converter;
     }
 
     private findWriteConverter(body: any): Converter {
         const type = this.findContentType(this.serverRequest.headers.accept, this.foundRoute.details.produces);
-        // const converter =  Overseer.getConverters().find((x: Converter) => x.canRead(body, type));
-        const converter =  Requisites.findAll(Converter).find((x: Converter) => x.canRead(body, type));
+        const converter =  Requisites.findAll(Converter).find((x: Converter) => x.canWrite(body, type));
         
         if(!converter) {
-            throw new RouterError(UNSUPPORTED_MEDIA_TYPE);
+            throw new HttpError(UNSUPPORTED_MEDIA_TYPE);
         }
 
         return converter;
@@ -172,7 +179,7 @@ export default class Router {
         let requiredContentTypes;
 
         if(contentTypes) {
-            requiredContentTypes = contentTypes.split(',').map(x => x.trim());
+            requiredContentTypes = contentTypes.split(',').map(x => x.trim()).map(x => x.split(';')[0]);
         }
 
         let type;

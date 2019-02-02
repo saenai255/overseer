@@ -9,7 +9,7 @@ export default class WayDetails {
             method: 'get',
             statusCode: 200,
             produces: ['application/json'],
-            consumes: ['application/json'],
+            consumes: ['application/json', 'multipart/form-data', 'application/x-www-form-urlencoded'],
             guards: [],
             cacheEnabled: false,
             cacheExpiresIn: 5000,

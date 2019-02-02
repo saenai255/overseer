@@ -4,14 +4,16 @@ import Overseer from "../core/Overseer";
 
 @Requisite
 export default class JsonConverter extends Converter {
-    private type = 'application/json';
+    getContentType(): string {
+        return 'application/json';
+    }
 
     canRead(target: string, contentType: string): boolean {
-        return contentType === this.type;
+        return this.getContentType() === contentType;
     }
     
     canWrite(target: any, contentType: string): boolean {
-        return contentType === this.type;
+        return this.getContentType() === contentType;
     }
 
     doWrite(target: any): string {
