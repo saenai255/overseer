@@ -11,6 +11,7 @@
     "describe": "npm-scripts-info",
     "build": "run-s clean && run-p build:main",
     "build:main": "tsc -p tsconfig.json",
+    "build:dev": "tsc -p tsconfig.dev.json",
     "test": "run-s build test:*",
     "test:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
     "test:unit": "nyc --silent ava",
@@ -67,6 +68,8 @@
   },
   "dependencies": {
     "@types/node": "^10.12.21",
+    "axios": "^0.18.0",
+    "deasync": "^0.1.14",
     "jsonwebtoken": "^8.4.0",
     "npmlog": "^4.1.2",
     "promisify": "0.0.3"

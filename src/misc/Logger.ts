@@ -1,12 +1,11 @@
 import * as log from 'npmlog';
 
-
-
 log.enableColor();
 log.enableProgress();
 log.enableUnicode();
 log.addLevel('info', 2000, {bg: 'black', fg: 'cyan'}, 'INFO\t');
 log.addLevel('error', 5000, {bg: 'black', fg: 'red'}, 'ERROR!\t');
+log.addLevel('debug', 2000, {bg: 'black', fg: 'green'}, 'DEBUG\t');
 
 function format(x: number) {
     return x < 10 ? '0' + x : x;
@@ -54,6 +53,10 @@ const logger = {
     error: (header: Object | string, message, ...args) => {
         const out = parse(header, message, ...args);
         log.error(out.header, out.message, ...out.args);
+    },
+    debug: (header: Object | string, message, ...args) => {
+        const out = parse(header, message, ...args);
+        log.debug(out.header, out.message, ...out.args);
     }
 }
 

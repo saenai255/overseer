@@ -11,6 +11,8 @@ export default class WayDetails {
             produces: ['application/json'],
             consumes: ['application/json'],
             guards: [],
+            cacheEnabled: false,
+            cacheExpiresIn: 5000,
             ...details
         };
     }
@@ -21,4 +23,6 @@ export default class WayDetails {
     public produces?: string[];
     public consumes?: string[];
     public guards?: Class<Guard>[];
+    public cacheEnabled?: boolean;
+    public cacheExpiresIn?: number;
 }

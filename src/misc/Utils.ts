@@ -1,5 +1,7 @@
 import { Class } from "./CustomTypes";
 import fs from "fs";
+import path from "path"
+
 
 export default class Utils {
     public static instanceOf<T>(target, clazz: Class<T>): boolean {
@@ -16,13 +18,14 @@ export default class Utils {
         }
     }
 
-    public static getSourceFiles(path: string): string[] {
+    public static getSourceFiles(relativePath: string): string[] {
         const out: string[] = [];
-        const files = fs.readdirSync(path);
+        const files = fs.readdirSync(relativePath);
 
         for (const file of files) {
-            if(this.isDirectory(path + file)) {
-                const result = this.getSourceFiles(path + file + '\\');
+            const currentPath = path.join(relativePath, file);
+            if(this.isDirectory(currentPath)) {
+                const result = this.getSourceFiles(currentPath);
 
                 if(result.length !== 0) {
                     out.push(...result);
@@ -32,7 +35,7 @@ export default class Utils {
             }
 
             if(file.endsWith(".js") && file[0].toUpperCase() === file[0]) {
-                out.push(path + file);
+                out.push(path.join(relativePath, file));
             }
         }
 

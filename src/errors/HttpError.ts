@@ -9,7 +9,7 @@ export default class RouterError extends Error {
     }
 
     static handleServerError(serverResponse: ServerResponse, e: any) {
-        logger.error(this, '%s', e);
+        console.error(e)
         new RouterError(INTERVAL_SERVER_ERROR).handle(serverResponse);
     }
 

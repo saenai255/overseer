@@ -17,6 +17,7 @@ import UserDetails from "./security/UserDetails";
 import Requisites from "./core/Requisites";
 import Resources from "./core/Resources";
 import logger from "./misc/Logger";
+import { AsyncFunction } from "./misc/CustomTypes";
 
 export {
   Overseer,

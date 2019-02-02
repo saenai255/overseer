@@ -5,7 +5,6 @@ import CoreError from "../errors/CoreError";
 import Resources from "../core/Resources";
 import RouteUtils from "./RouteUtils";
 import Redirect from "./Redirect";
-import { Overseer } from "..";
 import Converter from "../converters/Converter";
 import RouterError from "../errors/HttpError";
 import Response from "./Response";
@@ -126,7 +125,7 @@ export default class Router {
         } else if (e instanceof RouterError){
             output = e.response;
         } else {
-            logger.error(this, '{}', e);
+            console.error(e)
             output = INTERVAL_SERVER_ERROR;
         }
 

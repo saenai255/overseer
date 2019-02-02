@@ -4,24 +4,23 @@ import Route from "../routes/Route";
 import Resources from "./Resources";
 import MimeFinder from "../misc/MimeFinder";
 import logger from "../misc/Logger";
-import Requisites from "./Requisites";
+import Requisites, { RequisitePackage } from "./Requisites";
 import { performance } from "perf_hooks";
 import { Class } from "../misc/CustomTypes";
 import path from "path";
+import Requisite from "../decorators/Requisite";
 
 export default class Overseer {
     private static instance: Overseer;
-    
-    private requisiteClasses: any[];
-    private requisiteInstances: any[];
 
     private constructor(private basePath: string, private port: number) {
         Overseer.instance = Overseer.instance || this;
-
-        this.requisiteInstances = [];
-        this.requisiteClasses = [];
-
         logger.info(this, 'Initialized in base directory {}', basePath);
+    }
+
+    public static loadPackages(packs: RequisitePackage[] = []) {
+        packs.flatMap(pack => pack.classList).forEach(clazz => Requisites.addClass(clazz));
+        return Overseer;
     }
 
     public static serve(nodeModule: NodeModule, port: number): void {
@@ -36,14 +35,14 @@ export default class Overseer {
     
     private init(): void {
         this.loadPrerequisites();
-        this.requisiteClasses = Requisites.findClassesFromSourceFiles(this.basePath);
+        Requisites.findClassesFromSourceFiles(this.basePath).forEach(clazz => Requisites.addClass(clazz));
         this.initializeRequisites();
         this.setupRouter();
         this.performLifeCycles();
     }
 
     private performLifeCycles(): void {
-        this.requisiteInstances.forEach(instance => {
+        Requisites.instances().forEach(instance => {
             // onInit
             if(!!instance.__proto__.onInit) {
                 instance.__proto__.onInit.bind(instance).call();
@@ -53,7 +52,9 @@ export default class Overseer {
             // is configurer
             if(!!instance.__proto__.initialize) {
                 const requisites: any[] = instance.__proto__.initialize.bind(instance).call();
-                this.requisiteInstances.push(...requisites);
+                requisites.forEach(requisiteInstance => (
+                    Requisite(requisiteInstance.__proto__.constructor), 
+                    Requisites.addInstance(requisiteInstance)))
             }
         });
 
@@ -61,7 +62,9 @@ export default class Overseer {
 
     private loadPrerequisites(): void {
         const resources = new Resources(this.basePath,  new MimeFinder());
-        this.requisiteInstances.push(this, resources, new Router(this.port, resources));
+        Requisites.addInstance(this);
+        Requisites.addInstance(resources);
+        Requisites.addInstance(new Router(this.port, resources));
     }
 
     private setupRouter(): void {
@@ -77,19 +80,19 @@ export default class Overseer {
 
     private initializeRequisites(): void {
         let waiting = [];
-        this.requisiteClasses.forEach(clazz => waiting.push(new clazz()));
+        Requisites.classes().forEach(clazz => waiting.push(new clazz()));
 
         while(waiting.length !== 0) {
             waiting.forEach(instance => this.injectInstance(instance));
             waiting.filter(instance => !instance.prerequisites || instance.prerequisites.length === 0).forEach(instance => {
-                this.requisiteInstances.push(instance);
+                Requisites.addInstance(instance);
                 waiting = waiting.filter(x => x !== instance);
             });
         }
     }
 
     private injectInstance<T>(instance: Exclude<T, Class<T>>): T {
-        this.requisiteInstances.filter(c => (<any>instance).prerequisites.includes(c.constructor.name)).forEach(c => {
+        Requisites.instances().filter(c => (<any>instance).prerequisites.includes(c.constructor.name)).forEach(c => {
             const propName = c.constructor.name[0].toLowerCase() + c.constructor.name.substring(1);
             instance[propName] = c;
             (<any>instance).prerequisites = (<any>instance).prerequisites.filter(x => x !== c.constructor.name);

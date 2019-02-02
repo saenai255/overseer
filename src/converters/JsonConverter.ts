@@ -15,7 +15,7 @@ export default class JsonConverter extends Converter {
     }
 
     doWrite(target: any): string {
-        return JSON.stringify(target);
+        return target ? JSON.stringify(target) : '';
     }
 
     doRead(target: string): any {
