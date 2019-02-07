@@ -69,7 +69,6 @@
   },
   "dependencies": {
     "@types/node": "^10.12.21",
-    "YOUR_PROJECT_NAME": "github:paulcosma97/cached",
     "axios": "^0.18.0",
     "deasync": "^0.1.14",
     "jsonwebtoken": "^8.4.0",
