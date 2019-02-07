@@ -68,6 +68,7 @@
     ]
   },
   "dependencies": {
+    "@jeaks03/cached": "0.0.1",
     "@types/node": "^10.12.21",
     "axios": "^0.18.0",
     "deasync": "^0.1.14",

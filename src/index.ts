@@ -24,6 +24,7 @@ import { AsyncFunction, Class, UserProvider } from "./misc/CustomTypes";
 import * as HttpErrorResponse from "./misc/StandardResponses";
 import { RequisiteManager, RequisitePackage } from "./core/Requisites";
 import GlobalConfig from "./configs/GlobalConfig";
+import Cached from "@jeaks03/cached";
 
 export {
   Overseer,
@@ -54,7 +55,8 @@ export {
   HttpError,
   HttpErrorResponse,
   BasicAuthentication,
-  JWTAuthentication
+  JWTAuthentication,
+  Cached
 };
 
 if(process.argv[2] === 'overseer-dev') {
