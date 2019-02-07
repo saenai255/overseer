@@ -9,7 +9,6 @@ import Converter from "../converters/Converter";
 import HttpError from "../errors/HttpError";
 import Response from "./Response";
 import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
-import logger from "../misc/Logger";
 import Requisites from "../core/Requisites";
 
 export default class Router {
@@ -157,8 +156,6 @@ export default class Router {
         if(!converter) {
             throw new HttpError(UNSUPPORTED_MEDIA_TYPE);
         }
-
-        
 
         return converter;
     }

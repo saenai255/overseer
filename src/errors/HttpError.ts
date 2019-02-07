@@ -9,7 +9,7 @@ export default class HttpError extends Error {
     }
 
     static handleServerError(serverResponse: ServerResponse, e: any) {
-        console.error(e)
+        console.error(e);
         new HttpError(INTERVAL_SERVER_ERROR).handle(serverResponse);
     }
 
