@@ -6,7 +6,7 @@ import Route from "../routes/Route";
 import Abstracts from "../routes/Abstracts";
 import HttpError from "../errors/HttpError";
 import { UNAUTHORIZED } from "../misc/StandardResponses";
-import logger from "../misc/Logger";
+import logger from "@jeaks03/logger";
 import Requisites from "../core/Requisites";
 
 @Requisite
@@ -19,10 +19,15 @@ export default class Authorizer {
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {
+        const principal = this.auth.authenticate(info);
+        info.user = principal;
+
         for (const guard of route.details.guards) {
-            if(!(new guard()).canAccess(this.auth.authenticate(info), info)) {
+            if(!(new guard()).canAccess(principal, info)) {
                 throw new HttpError(UNAUTHORIZED);
             }
+
+            
         }
     }
 

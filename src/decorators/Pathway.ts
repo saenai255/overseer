@@ -1,7 +1,7 @@
 import Route from "../routes/Route";
 import WayDetails from "../routes/WayDetails";
 import { AsyncFunction } from "../misc/CustomTypes";
-import logger from "../misc/Logger";
+import logger from "@jeaks03/logger";
 import { Router } from "..";
 
 /**

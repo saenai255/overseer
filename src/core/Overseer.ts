@@ -3,7 +3,7 @@ import Router from "../routes/Router";
 import Route from "../routes/Route";
 import Resources from "./Resources";
 import MimeFinder from "../misc/MimeFinder";
-import logger from "../misc/Logger";
+import logger from "@jeaks03/logger";
 import Requisites, { RequisitePackage } from "./Requisites";
 import { performance } from "perf_hooks";
 import { Class } from "../misc/CustomTypes";

@@ -42,4 +42,5 @@
     "member-access": false,
     "no-empty": false,
     "callable-types": false
+  }
 }

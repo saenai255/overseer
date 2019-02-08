@@ -2,7 +2,7 @@ import fs from "fs";
 import {ServerResponse} from "http";
 import MimeFinder from "../misc/MimeFinder";
 import path from 'path';
-import logger from "../misc/Logger";
+import logger from "@jeaks03/logger";
 import { promisify } from "util";
 
 export default class Resources {

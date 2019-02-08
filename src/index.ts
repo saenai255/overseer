@@ -19,13 +19,10 @@ import Guard from "./security/guards/Guard";
 import UserDetails from "./security/UserDetails";
 import Requisites from "./core/Requisites";
 import Resources from "./core/Resources";
-import logger from "./misc/Logger";
 import { AsyncFunction, Class, UserProvider } from "./misc/CustomTypes";
 import * as HttpErrorResponse from "./misc/StandardResponses";
 import { RequisiteManager, RequisitePackage } from "./core/Requisites";
 import GlobalConfig from "./configs/GlobalConfig";
-import Cached from "@jeaks03/cached";
-
 export {
   Overseer,
   Router,
@@ -43,7 +40,6 @@ export {
   Authentication,
   Guard,
   UserDetails,
-  logger,
   Requisites,
   Resources,
   AsyncFunction,
@@ -55,8 +51,7 @@ export {
   HttpError,
   HttpErrorResponse,
   BasicAuthentication,
-  JWTAuthentication,
-  Cached
+  JWTAuthentication
 };
 
 if(process.argv[2] === 'overseer-dev') {
