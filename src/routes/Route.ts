@@ -5,14 +5,22 @@ import Requisites from "../core/Requisites";
 import { loopWhile } from 'deasync';
 
 export default class Route {
-    public details: WayDetails;
-    public handler: any;
-    public handlerName: string;
+    constructor(public details: WayDetails, public handler: any, public handlerName: string) {
+        let path = this.details.path;
 
-    constructor(details: WayDetails, handler: any, handlerName: string) {
-        this.handler = handler;
-        this.handlerName = handlerName;
-        this.details = details;
+        if(path.startsWith('/')) {
+            path = path.substring(1);
+        }
+
+        if(path.endsWith('/')) {
+            path = path.substring(0, path.length - 1);
+        }
+
+        this.details.path = path;
+    }
+
+    public getParts(): string[] {
+        return this.details.path.split('/');
     }
 
     public handle(info: Abstracts<any, any, any>): any {

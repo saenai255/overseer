@@ -1,6 +1,6 @@
 import { Class } from "../misc/CustomTypes";
 import Utils from "../misc/Utils";
-import { logger } from "..";
+import logger from "@jeaks03/logger";
 import path from "path";
 import GlobalConfig from "../configs/GlobalConfig";
 import Requisite from "../decorators/Requisite";

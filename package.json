@@ -1,12 +1,12 @@
 {
   "name": "@jeaks03/overseer",
-  "version": "1.1.2",
+  "version": "1.1.6",
   "description": "Just another TypeScript Back-End framework",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "repository": "https://github.com/paulcosma97/overseer",
   "license": "MIT",
-  "keywords": [],
+  "keywords": ["overseer", "typescript", "aspect-oriented", "aspect" , "aop", "framework", "backend", "server", "lightweight"],
   "scripts": {
     "describe": "npm-scripts-info",
     "build": "run-s clean && run-p build:main",

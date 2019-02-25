@@ -42,6 +42,21 @@ export default class RouteUtils {
         return url.split('?')[0].split('#')[0];
     }
 
+    public static getUrlPattern(baseUrl: string): string[] {
+        let path = baseUrl;
+
+        if(path.startsWith('/')) {
+            path = path.substring(1);
+        }
+
+        if(path.endsWith('/')) {
+            path = path.substring(0, path.length - 1);
+        }
+
+        const url = this.getBaseUrl(path);
+        return url.split('/');
+    }
+
     public static parsePathParams(baseUrl: string, basePattern: string): object {
         let url = baseUrl;
         let pattern = basePattern;

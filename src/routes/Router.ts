@@ -10,16 +10,22 @@ import HttpError from "../errors/HttpError";
 import Response from "./Response";
 import { UNSUPPORTED_MEDIA_TYPE, INTERVAL_SERVER_ERROR } from "../misc/StandardResponses";
 import Requisites from "../core/Requisites";
+import logger from "@jeaks03/logger";
 
 export default class Router {
     public routes: Route[];
 
+    public routeTree: any;
+
+    private routeSym: symbol;
     private serverRequest: IncomingMessage;
     private serverResponse: ServerResponse;
     private foundRoute: Route;
 
     constructor(private port: number, private resourceMgr: Resources) {
         this.routes = [];
+        this.routeTree = {};
+        this.routeSym = Symbol('Route object index');
     }
 
     public init(): void {
@@ -28,7 +34,7 @@ export default class Router {
             this.serverResponse = res;
 
             try {
-                this.findRoute();
+                this.checkAvailableRoute();
             } catch(e) {
                 if(!!e.response) {
                     e.handle(this.serverResponse);
@@ -40,8 +46,73 @@ export default class Router {
         server.listen(this.port);
     }
 
-    private findRoute(): void {
-        const route = this.routes.find((r: Route) => RouteUtils.routeMatches(this.serverRequest.url, r.details.path) && this.serverRequest.method.toLowerCase() === r.details.method.toLowerCase());
+    public addRoute(route: Route): void {
+        let tree = this.routeTree;
+        const parts = route.getParts();
+
+        if(parts[0] === '') {
+            if(!this.routeTree[this.routeSym]) {
+                this.routeTree[this.routeSym] = {};
+            }
+            const branch = this.routeTree[this.routeSym];
+
+            if(branch[route.details.method.toLowerCase()]) {
+                logger.error(this, 'Route overlap on path `{}`@`{}`', route.details.method, route.details.path);
+                throw new Error();
+            }
+
+            branch[route.details.method.toLowerCase()] = route;
+        }
+
+        parts.forEach((part, i) => {
+            const isVariable = (part.startsWith('{') && part.endsWith('}')) || part === '*';
+            const branch = isVariable ? '*' : part;
+
+            if(!tree[branch]) {
+                tree[branch] = {};
+            }
+
+            tree = tree[branch];
+
+            if(i === parts.length - 1) {
+                if(!tree[this.routeSym]) {
+                    tree[this.routeSym] = {};
+                }
+
+                const branch = tree[this.routeSym];
+
+                if(branch[route.details.method.toLowerCase()]) {
+                    logger.error(this, 'Route overlap on path `{}`@`{}`', route.details.method, route.details.path);
+                    throw new Error();
+                }
+
+                tree[this.routeSym][route.details.method.toLowerCase()] = route;
+            }
+        });
+    }
+
+    private findRoute(): Route {
+        const parts = RouteUtils.getUrlPattern(this.serverRequest.url);
+        let tree = this.routeTree;
+
+        for(const part of parts) {
+            if(!tree[part]) {
+                return null;
+            }
+
+            tree = tree[part];
+        }
+
+        if(!tree || !tree[this.routeSym]) {
+            return null;
+        }
+
+        return tree[this.routeSym][this.serverRequest.method.toLowerCase()] || null;
+    }
+
+    private checkAvailableRoute(): void {
+        //const route = this.routes.find((r: Route) => RouteUtils.routeMatches(this.serverRequest.url, r.details.path) && this.serverRequest.method.toLowerCase() === r.details.method.toLowerCase());
+        const route = this.findRoute();
         if(route) {
             this.foundRoute = route;
             this.routeMatched();
