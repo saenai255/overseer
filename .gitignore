@@ -4,6 +4,7 @@ test
 src/**.js
 src/demo
 .idea/*
+resources
 
 coverage
 .nyc_output
@@ -11,3 +12,4 @@ coverage
 
 package-lock.json
 .DS_Store
+
