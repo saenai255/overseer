@@ -100,7 +100,7 @@ Documentation details regarding the decorators.
   }
  ```
  
- ##### @Pathway
+ #### @Pathway
  This decorator marks a method as the handler of the given path. It requires an argument of type ```WayDetails``` which has the following attributes:
   - path -- *string*: the path for the endpoint to map. Default: ```/```
   - method -- *string*: http method. Default: ```GET```
