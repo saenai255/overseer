@@ -22,13 +22,14 @@ export default function Requisite(target: any /* class */): void {
 
     const foundRoutes = target.prototype.routes;
     if(foundRoutes) {
-        // Requisites.find(Router).routes.push(...foundRoutes);
         const router = Requisites.find(Router);
 
         foundRoutes.forEach((route: Route) => {
             router.addRoute(route)
             logger.info(Router, 'Mapped endpoint [ {}, `{}` ] to {}.{}(..) handler', route.details.method, route.details.path, route.handlerName, route.handler.name);
         });
+
+        delete target.prototype.routes;
     }
 
 }

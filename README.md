@@ -74,6 +74,7 @@ Documentation details regarding the decorators.
  Requisite classes *must* be exported by default and have the *same name as the file*, the name must the also *PascalCased*. All requisite classes inherit an ```onInit``` method which gets called after injecting all the required injectables. It is recommended to use this method instead of the constructor to initialize your class instance.
  
  Example of dependency injection:
+
  *MyService.ts*
  ```typescript
  import { Requisite } from '@jeaks03/overseer';

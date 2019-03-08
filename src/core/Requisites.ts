@@ -49,7 +49,7 @@ export class RequisiteManager {
             .filter(script => !!script.default.prototype.isPrerequisite)
             .map(script => script.default)
             .filter(clazz => !foundClasses.includes(clazz))
-            .forEach((clazz, i) => (foundClasses.push(clazz), logger.debug(this, 'Found requisite class {} in file `{}`', clazz.prototype.constructor.name, files[i])));
+            .forEach((clazz, i) => (foundClasses.push(clazz), logger.debug(this, 'Found requisite class {}', clazz.prototype.constructor.name)));
 
         logger.info(this, '{} a total of {} requisites from sources path `{}`', pack ? 'Packed' : 'Loaded', foundClasses.length, path);
         return foundClasses;
