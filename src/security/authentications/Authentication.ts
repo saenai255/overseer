@@ -7,7 +7,7 @@ export default class Authentication {
     constructor(protected userProvider: UserProvider) {
     }
 
-    public authenticate(info: Abstracts<any, any, any>): UserDetails {
+    public async authenticate(info: Abstracts<any, any, any>): Promise<UserDetails> {
         throw new Error('Method not implemented');
     }
 }

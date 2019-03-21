@@ -18,31 +18,32 @@ export default class JWTAuthentication extends Authentication {
 
     @Pathway({path: '/access-token'})
     public createAccessToken(info:Abstracts<any, any, any>) {
-        const authHeader = info.raw.request.headers.authorization;
-        if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {
-            throw new HttpError(UNAUTHORIZED);
+        return async () => {
+            const authHeader = info.raw.request.headers.authorization;
+            if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {
+                throw new HttpError(UNAUTHORIZED);
+            }
+
+            const [username, password] = Buffer.from(authHeader.split('Basic ')[1], 'base64').toString('utf8').split(':');
+            const foundUser = await this.userProvider(username);
+
+            if(!foundUser || foundUser.password !== password) {
+                throw new HttpError(BAD_REQUEST);
+            }
+
+            foundUser.password = undefined;
+
+            const token = jwt.sign({user: foundUser}, password, {expiresIn: this.expiresIn});
+            const out = jwt.decode(token);
+
+            return {
+                token,
+                ...out
+            };
         }
-
-        const [username, password] = Buffer.from(authHeader.split('Basic ')[1], 'base64').toString('utf8').split(':');
-        const foundUser = this.userProvider(username);
-
-        if(!foundUser || foundUser.password !== password) {
-            throw new HttpError(BAD_REQUEST);
-        }
-
-        foundUser.password = undefined;
-
-        const token = jwt.sign({user: foundUser}, password, {expiresIn: this.expiresIn});
-        const out = jwt.decode(token);
-
-        return {
-            token,
-            ...out
-        };
-
     }
 
-    public authenticate(info:Abstracts<any, any, any>): UserDetails {
+    public async authenticate(info:Abstracts<any, any, any>): Promise<UserDetails> {
         const authHeader = info.raw.request.headers.authorization;
         if(!authHeader || !authHeader.includes('Bearer ') || authHeader.length < 10) {
             throw new HttpError(UNAUTHORIZED);
@@ -50,7 +51,7 @@ export default class JWTAuthentication extends Authentication {
 
         const token = authHeader.split('Bearer ')[1];
         const { user } = jwt.decode(token) as JwtToken;
-        const foundUser = this.userProvider(user.username);
+        const foundUser = await this.userProvider(user.username);
 
         if(!foundUser) {
             throw new HttpError(UNAUTHORIZED);

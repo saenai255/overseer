@@ -1,15 +1,16 @@
-import Requisite from "../decorators/Requisite";
 import Authentication from "./authentications/Authentication";
 import NoAuthentication from "./authentications/NoAuthentication";
-import Overseer from "../core/Overseer";
 import Route from "../routes/Route";
 import Abstracts from "../routes/Abstracts";
 import HttpError from "../errors/HttpError";
 import { UNAUTHORIZED } from "../misc/StandardResponses";
 import logger from "@jeaks03/logger";
 import Requisites from "../core/Requisites";
+import { loopWhile } from 'deasync';
+import Utils from "../misc/Utils";
+import { UserDetails } from "..";
 
-@Requisite
+
 export default class Authorizer {
     private auth: Authentication;
 
@@ -19,7 +20,9 @@ export default class Authorizer {
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {
-        const principal = this.auth.authenticate(info);
+        const principalPromise = this.auth.authenticate(info);
+        const principal = Utils.clearPromise(principalPromise);
+
         info.user = principal;
 
         for (const guard of route.details.guards) {

@@ -1,8 +1,5 @@
 import Converter from "./Converter";
-import Requisite from "../decorators/Requisite";
-import Overseer from "../core/Overseer";
 
-@Requisite
 export default class JsonConverter extends Converter {
     getContentType(): string {
         return 'application/json';

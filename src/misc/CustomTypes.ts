@@ -6,5 +6,5 @@ export interface Class<T> {
     name: string,
 }
 
-export interface UserProvider extends Function { (username: string): UserDetails };
+export interface UserProvider extends Function { (username: string): UserDetails | Promise<UserDetails> };
 export const AsyncFunction = (async () => {}).constructor;

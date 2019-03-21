@@ -9,6 +9,11 @@ import { performance } from "perf_hooks";
 import { Class } from "../misc/CustomTypes";
 import path from "path";
 import Requisite from "../decorators/Requisite";
+import FormDataConverter from "../converters/FormDataConverter";
+import JsonConverter from "../converters/JsonConverter";
+import XWWWFormUrlEncoded from "../converters/XWWWFormUrlEncoded";
+import Authorizer from "../security/Authorizer";
+import GlobalConfig from "../configs/GlobalConfig";
 
 export default class Overseer {
     private static instance: Overseer;
@@ -39,6 +44,8 @@ export default class Overseer {
         this.initializeRequisites();
         this.setupRouter();
         this.performLifeCycles();
+
+        logger.info(this, '{} a total of {} requisites from sources', GlobalConfig.isLibraryPackage ? 'Packed' : 'Loaded', Requisites.instances().length);
     }
 
     private performLifeCycles(): void {
@@ -62,6 +69,13 @@ export default class Overseer {
 
     private loadPrerequisites(): void {
         const resources = new Resources(this.basePath,  new MimeFinder());
+
+
+        Requisites.addClass(FormDataConverter);
+        Requisites.addClass(JsonConverter);
+        Requisites.addClass(XWWWFormUrlEncoded);
+        Requisites.addClass(Authorizer);
+
         Requisites.addInstance(this);
         Requisites.addInstance(resources);
         Requisites.addInstance(new Router(this.port, resources));

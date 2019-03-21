@@ -4,7 +4,7 @@ import Abstracts from "../../routes/Abstracts";
 import UserDetails from "../UserDetails";
 
 export default class NoAuthentication extends Authentication  {
-    public authenticate(info: Abstracts<any, any, any>): UserDetails {
+    public async authenticate(info: Abstracts<any, any, any>): Promise<UserDetails> {
         return null;
     }
 }

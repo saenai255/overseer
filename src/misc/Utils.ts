@@ -1,9 +1,28 @@
 import { Class } from "./CustomTypes";
 import fs from "fs";
 import path from "path"
+import { loopWhile } from 'deasync';
 
 
 export default class Utils {
+    public static clearPromise<T>(target: Promise<T>): T {
+        let newTarget: T | Promise<T> = target;
+
+        if(newTarget instanceof Promise) {
+            newTarget.then(response => {
+                newTarget = response
+            }).catch(err => { 
+                newTarget = err;
+            })
+            loopWhile(() => newTarget instanceof Promise);
+            if(newTarget instanceof Error) {
+                throw newTarget;
+            }
+        }
+
+        return newTarget as unknown as T;
+    }
+
     public static instanceOf<T>(target, clazz: Class<T>): boolean {
         const classKeys = Object.keys(new clazz());
         return Object.keys(target).filter(key => !classKeys.includes(key)).length == 0;
