@@ -13,7 +13,8 @@ export default class HttpError extends Error {
     }
 
     handle(serverResponse: ServerResponse) {
-        serverResponse.writeHead(this.response.status, {'Content-Type': 'application/json'});
+        serverResponse.setHeader('Content-Type', 'application/json')
+        serverResponse.statusCode = this.response.status;
         serverResponse.write(!this.response.body ? '' : JSON.stringify(this.response.body));
         serverResponse.end();
     }

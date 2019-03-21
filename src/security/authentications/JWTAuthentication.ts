@@ -18,7 +18,7 @@ export default class JWTAuthentication extends Authentication {
 
     @Pathway({path: '/access-token'})
     public createAccessToken(info:Abstracts<any, any, any>) {
-        return async () => {
+        return (async () => {
             const authHeader = info.raw.request.headers.authorization;
             if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {
                 throw new HttpError(UNAUTHORIZED);
@@ -40,7 +40,7 @@ export default class JWTAuthentication extends Authentication {
                 token,
                 ...out
             };
-        }
+        })();
     }
 
     public async authenticate(info:Abstracts<any, any, any>): Promise<UserDetails> {
