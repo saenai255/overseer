@@ -13,3 +13,5 @@ export class RawAbstracts {
     public request: IncomingMessage;
     public response: ServerResponse;
 }
+
+export class PathInfo extends Abstracts<any, any, any> { }

@@ -8,3 +8,8 @@ export interface Class<T> {
 
 export interface UserProvider extends Function { (username: string): UserDetails | Promise<UserDetails> };
 export const AsyncFunction = (async () => {}).constructor;
+
+export interface Event extends Function { (): void };
+export enum EventType {
+    AfterFinishStartup
+}

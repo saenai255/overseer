@@ -125,6 +125,6 @@ export default class RouteUtils {
             return parseInt(value, 10);
         }
 
-        return value;
+        return decodeURIComponent(value);
     }
 }

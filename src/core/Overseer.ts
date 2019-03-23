@@ -6,7 +6,7 @@ import MimeFinder from "../misc/MimeFinder";
 import logger from "@jeaks03/logger";
 import Requisites, { RequisitePackage } from "./Requisites";
 import { performance } from "perf_hooks";
-import { Class } from "../misc/CustomTypes";
+import { Class, EventType } from "../misc/CustomTypes";
 import path from "path";
 import Requisite from "../decorators/Requisite";
 import FormDataConverter from "../converters/FormDataConverter";
@@ -14,6 +14,8 @@ import JsonConverter from "../converters/JsonConverter";
 import XWWWFormUrlEncoded from "../converters/XWWWFormUrlEncoded";
 import Authorizer from "../security/Authorizer";
 import GlobalConfig from "../configs/GlobalConfig";
+import Events, { IEvents } from "./Events";
+import { eventNames } from "cluster";
 
 export default class Overseer {
     private static instance: Overseer;
@@ -44,6 +46,8 @@ export default class Overseer {
         this.initializeRequisites();
         this.setupRouter();
         this.performLifeCycles();
+        
+        (Requisites.find(Events) as unknown as IEvents).dispatch(EventType.AfterFinishStartup);
 
         logger.info(this, '{} a total of {} requisites from sources', GlobalConfig.isLibraryPackage ? 'Packed' : 'Loaded', Requisites.instances().length);
     }
@@ -51,8 +55,9 @@ export default class Overseer {
     private performLifeCycles(): void {
         Requisites.instances().forEach(instance => {
             // onInit
-            if(!!instance.__proto__.onInit) {
+            if(!!instance.__proto__.onInit && !instance.__proto__.onInitCompleted) {
                 instance.__proto__.onInit.bind(instance).call();
+                instance.__proto__.onInitCompleted = true;
             }
 
 
@@ -71,6 +76,7 @@ export default class Overseer {
         const resources = new Resources(this.basePath,  new MimeFinder());
 
 
+        Requisites.addInstance(new Events());
         Requisites.addClass(FormDataConverter);
         Requisites.addClass(JsonConverter);
         Requisites.addClass(XWWWFormUrlEncoded);

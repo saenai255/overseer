@@ -9,14 +9,20 @@ import Requisites from "../core/Requisites";
 import { loopWhile } from 'deasync';
 import Utils from "../misc/Utils";
 import { UserDetails } from "..";
+import Events from "../core/Events";
+import { EventType } from "../misc/CustomTypes";
 
 
 export default class Authorizer {
     private auth: Authentication;
 
+    constructor(private events: Events) { }
+
     onInit() {
-        this.auth = Requisites.find(Authentication) || new NoAuthentication(null);
-        logger.info(this, 'Proceeding with {} security', (<Object>this.auth).constructor.name)
+        this.events.register(EventType.AfterFinishStartup, () => {
+            this.auth = Requisites.find(Authentication) || new NoAuthentication(null);
+            logger.info(this, 'Proceeding with {} security', (<Object>this.auth).constructor.name)
+        });
     }
 
     authorizeRoute(route: Route, info: Abstracts<any, any, any>) {

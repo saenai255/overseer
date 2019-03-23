@@ -21,14 +21,14 @@ export default class JWTAuthentication extends Authentication {
         return (async () => {
             const authHeader = info.raw.request.headers.authorization;
             if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {
-                throw new HttpError(UNAUTHORIZED);
+                throw new HttpError(BAD_REQUEST);
             }
 
             const [username, password] = Buffer.from(authHeader.split('Basic ')[1], 'base64').toString('utf8').split(':');
             const foundUser = await this.userProvider(username);
 
             if(!foundUser || foundUser.password !== password) {
-                throw new HttpError(BAD_REQUEST);
+                throw new HttpError(UNAUTHORIZED);
             }
 
             foundUser.password = undefined;
@@ -46,7 +46,7 @@ export default class JWTAuthentication extends Authentication {
     public async authenticate(info:Abstracts<any, any, any>): Promise<UserDetails> {
         const authHeader = info.raw.request.headers.authorization;
         if(!authHeader || !authHeader.includes('Bearer ') || authHeader.length < 10) {
-            throw new HttpError(UNAUTHORIZED);
+            return null;
         }
 
         const token = authHeader.split('Bearer ')[1];
@@ -54,14 +54,14 @@ export default class JWTAuthentication extends Authentication {
         const foundUser = await this.userProvider(user.username);
 
         if(!foundUser) {
-            throw new HttpError(UNAUTHORIZED);
+            return null;
         }
 
         try {
             jwt.verify(token, foundUser.password)
             return foundUser;
         } catch {
-            throw new HttpError(UNAUTHORIZED);
+            return null;
         } 
     }
 
