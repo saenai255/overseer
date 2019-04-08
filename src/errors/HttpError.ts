@@ -16,6 +16,5 @@ export default class HttpError extends Error {
         serverResponse.setHeader('Content-Type', 'application/json')
         serverResponse.statusCode = this.response.status;
         serverResponse.write(!this.response.body ? '' : JSON.stringify(this.response.body));
-        serverResponse.end();
     }
 }

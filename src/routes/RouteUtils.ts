@@ -127,4 +127,8 @@ export default class RouteUtils {
 
         return decodeURIComponent(value);
     }
+
+    public static isMethod(serverRequest: IncomingMessage, method: string): boolean {
+        return serverRequest.method.toLowerCase() === method.toLowerCase();
+    }
 }
