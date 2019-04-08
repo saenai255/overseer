@@ -13,7 +13,6 @@ import Requisites from "../core/Requisites";
 
 export default class AsyncRequestHandler {
     private foundRoute: Route;
-
     static async doHandle(serverRequest: IncomingMessage, serverResponse: ServerResponse, router: Router) {
         const handler = new AsyncRequestHandler(serverRequest, serverResponse, router);
         await handler.handle();
