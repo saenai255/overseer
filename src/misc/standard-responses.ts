@@ -1,4 +1,4 @@
-import Response from "../routes/Response";
+import Response from "../routes/response";
 
 const getBase = (code, status) => {
     return {

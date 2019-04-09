@@ -1,4 +1,4 @@
-import { Class } from "./CustomTypes";
+import { Class } from "./custom-types";
 import fs from "fs";
 import path from "path"
 import { loopWhile } from 'deasync';
@@ -53,7 +53,9 @@ export default class Utils {
                 continue;
             }
 
-            if(file.endsWith(".js") && file[0].toUpperCase() === file[0]) {
+            if(file.endsWith(".component.js") ||
+                file.endsWith(".controller.js") ||
+                file.endsWith(".service.js")) {
                 out.push(path.join(relativePath, file));
             }
         }

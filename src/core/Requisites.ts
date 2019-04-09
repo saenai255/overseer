@@ -1,23 +1,20 @@
-import { Class } from "../misc/CustomTypes";
-import Utils from "../misc/Utils";
-import logger from "@jeaks03/logger";
-import path from "path";
-import GlobalConfig from "../configs/GlobalConfig";
-import Requisite from "../decorators/Requisite";
+import { Class } from "../misc/custom-types";
+import Utils from "../misc/utils";
+import { GlobalConfig } from "../configs/global";
 
 
 export class RequisiteManager {
     private classList = [];
     private instanceList = [];
 
-    public pack(module: NodeModule) {
-        return RequisitePackage.of(
-            ...this.findClassesFromSourceFiles(path.join(module.filename, '..'), true)
-        )
-    }
+    //public pack(module: NodeModule) {
+     //   return RequisitePackage.of(
+      //      ...this.findClassesFromSourceFiles(path.join(module.filename, '..'), true)
+      //  )
+  //  }
 
     public addClass(clazz: Class<any>) {
-        Requisite(clazz);
+     //   Requisite(clazz);
         this.classList.push(clazz);
     }
 
@@ -37,21 +34,11 @@ export class RequisiteManager {
         return this.instanceList.filter(x => x instanceof clazz);
     }
 
-    public findClassesFromSourceFiles(path: string, pack = false): Class<any>[] {
-        const foundClasses = [];
+    public findClassesFromSourceFiles(path: string, pack = false): void {
         const files = Utils.getSourceFiles(path);
         GlobalConfig.isLibraryPackage = pack;
 
-        files.map(file => require(file))
-            .filter(script => !!script)
-            .filter(script => !!script.default)
-            .filter(script => !!script.default.prototype)
-            .filter(script => !!script.default.prototype.isPrerequisite)
-            .map(script => script.default)
-            .filter(clazz => !foundClasses.includes(clazz))
-            .forEach((clazz, i) => (foundClasses.push(clazz), logger.debug(this, 'Found requisite class {}', clazz.prototype.constructor.name)));
-
-        return foundClasses;
+        files.forEach(file => require(file));
     }
 
     public instances() {
@@ -73,4 +60,4 @@ export class RequisitePackage {
     }
 }
 
-export default new RequisiteManager();
+export const Requisites =  new RequisiteManager();

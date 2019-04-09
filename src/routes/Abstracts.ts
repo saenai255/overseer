@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
-import UserDetails from "../security/UserDetails";
+import UserDetails from "../security/user-details";
 
 export default class Abstracts<B, P, Q> {
     public raw: RawAbstracts;

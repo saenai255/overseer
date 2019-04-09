@@ -1,18 +1,18 @@
-import Authentication from "./authentications/Authentication";
-import NoAuthentication from "./authentications/NoAuthentication";
-import Route from "../routes/Route";
-import Abstracts from "../routes/Abstracts";
-import HttpError from "../errors/HttpError";
-import { UNAUTHORIZED } from "../misc/StandardResponses";
+
+import Authentication from "./authentications/authentication";
+import NoAuthentication from "./authentications/no-authentication";
+import Route from "../routes/route";
+import Abstracts from "../routes/abstracts";
+import HttpError from "../errors/http-error";
+import { UNAUTHORIZED } from "../misc/standard-responses";
 import logger from "@jeaks03/logger";
-import Requisites from "../core/Requisites";
-import { loopWhile } from 'deasync';
-import Utils from "../misc/Utils";
-import { UserDetails } from "..";
-import Events from "../core/Events";
-import { EventType } from "../misc/CustomTypes";
+import { Requisites } from "../core/requisites";
+import Utils from "../misc/utils";
+import Events from "../core/events";
+import { EventType } from "../misc/custom-types";
+import Requisite from "../decorators/requisite";
 
-
+@Requisite
 export default class Authorizer {
     private auth: Authentication;
 

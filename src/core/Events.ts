@@ -1,4 +1,4 @@
-import { EventType, Event } from "../misc/CustomTypes";
+import { EventType, Event } from "../misc/custom-types";
 
 export interface IEvents {
     register(type: EventType, event: Event): void;

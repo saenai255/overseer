@@ -1,7 +1,7 @@
-import WayDetails from "./WayDetails";
-import Authorizer from "../security/Authorizer";
-import Abstracts from "./Abstracts";
-import Requisites from "../core/Requisites";
+import WayDetails from "./way-details";
+import Authorizer from "../security/authorizer.component";
+import Abstracts from "./abstracts";
+import { Requisites } from "../core/requisites";
 import { loopWhile } from 'deasync';
 
 export default class Route {

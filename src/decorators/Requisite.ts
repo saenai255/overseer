@@ -1,26 +1,41 @@
-import Requisites from "../core/Requisites";
-import Router from "../routes/Router";
-import Route from "../routes/Route";
+import { Requisites } from "../core/requisites";
+import Router from "../routes/router";
+import Route from "../routes/route";
 import logger from "@jeaks03/logger";
-import GlobalConfig from "../configs/GlobalConfig";
+import { ShadowMeta, Class, MetaClass } from "../misc/custom-types";
+import { GlobalConfig } from "../configs/global";
 
-const getArgs = (target) => {
-    const classImpl = target.prototype.constructor.toString();
-    if(!classImpl.includes('constructor(') || classImpl.includes('constructor()')) {
-        return [];
+const getShadowMeta = <T>(target: MetaClass<T>): ShadowMeta => {
+    if(!target.prototype.__shadowMeta) {
+        return null;
     }
-    return classImpl.split('constructor(')[1].split(')')[0].split(",").map(x => x.trim()).map((x: string) => x[0].toUpperCase() + x.substring(1));
+
+    return target.prototype.__shadowMeta;
 }
 
-export default function Requisite(target: any /* class */): void {
+const Requisite: ClassDecorator = <T>(target: MetaClass<T> | any) => {
     if(GlobalConfig.isLibraryPackage) {
         return;
     }
 
-    target.prototype.isPrerequisite = true;
-    target.prototype.prerequisites = getArgs(target);
+    let shadowMeta = getShadowMeta(target);
+    if(shadowMeta && shadowMeta.isRequisite) {
+        return;
+    }
 
-    const foundRoutes = target.prototype.routes;
+    Requisites.addClass(target);
+    if(!shadowMeta) {
+        target.prototype.__shadowMeta = {
+            isRequisite: true
+        };
+
+        shadowMeta = getShadowMeta(target);
+    }
+
+    // Reflect.getOwnMetadata("design:paramtypes", target)[1].constructor
+
+    shadowMeta.required = Reflect.getOwnMetadata("design:paramtypes", target) || [];
+    const foundRoutes = shadowMeta.routes;
     if(foundRoutes) {
         const router = Requisites.find(Router);
 
@@ -28,8 +43,7 @@ export default function Requisite(target: any /* class */): void {
             router.addRoute(route)
             logger.info(Router, 'Mapped endpoint [ {}, `{}` ] to {}.{}(..) handler', route.details.method, route.details.path, route.handlerName, route.handler.name);
         });
-
-        delete target.prototype.routes;
     }
-
 }
+
+export default Requisite;

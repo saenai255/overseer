@@ -1,4 +1,4 @@
-import Redirect from "./Redirect";
+import Redirect from "./redirect";
 
 export default abstract class Controller {
     /**

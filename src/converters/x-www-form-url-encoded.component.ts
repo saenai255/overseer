@@ -1,5 +1,7 @@
-import Converter from "./Converter";
+import Converter from "./converter";
+import Requisite from "../decorators/requisite";
 
+@Requisite
 export default class XWWWFormUrlEncoded extends Converter {
     getContentType(): string {
         return 'application/x-www-form-urlencoded';

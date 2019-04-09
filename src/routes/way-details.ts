@@ -1,5 +1,5 @@
-import Guard from "../security/guards/Guard";
-import { Class } from "../misc/CustomTypes";
+import Guard from "../security/guards/guard";
+import { Class } from "../misc/custom-types";
 
 export default class WayDetails {
 
@@ -16,9 +16,9 @@ export default class WayDetails {
     }
 
     public path?: string;
-    public method?: string;
+    public method?: 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head';
     public statusCode?: number;
     public produces?: string[];
     public consumes?: string[];
-    public guards?: Class<Guard>[];
+    public guards?: Array<Class<Guard>>;
 }

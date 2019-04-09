@@ -1,28 +1,30 @@
-import Overseer from "./core/Overseer";
-import Router from "./routes/Router";
-import Pathway from "./decorators/Pathway";
-import CoreError from "./errors/CoreError";
-import HttpError from "./errors/HttpError";
-import Requisite from "./decorators/Requisite";
-import Route from "./routes/Route";
-import Abstracts, { PathInfo } from "./routes/Abstracts";
-import Controller from "./routes/Controller"
-import Redirect from "./routes/Redirect"
-import RequisiteInitializer from "./core/RequisiteInitializer";
-import WayDetails from "./routes/WayDetails";
-import Authentication from "./security/authentications/Authentication";
-import JWTAuthentication from "./security/authentications/JWTAuthentication";
-import BasicAuthentication from "./security/authentications/BasicAuthentication";
-import AuthenticatedGuard from "./security/guards/AuthenticatedGuard";
-import AnonymousGuard from "./security/guards/AnonymousGuard";
-import Guard from "./security/guards/Guard";
-import UserDetails from "./security/UserDetails";
-import Requisites from "./core/Requisites";
-import Resources from "./core/Resources";
-import { AsyncFunction, Class, UserProvider, Event, EventType } from "./misc/CustomTypes";
-import * as HttpErrorResponse from "./misc/StandardResponses";
-import { RequisiteManager, RequisitePackage } from "./core/Requisites";
-import GlobalConfig from "./configs/GlobalConfig";
+import "reflect-metadata";
+
+import Overseer from "./core/overseer";
+import Router from "./routes/router";
+import Pathway from "./decorators/pathway";
+import CoreError from "./errors/core-error";
+import HttpError from "./errors/http-error";
+import Requisite from "./decorators/requisite";
+import Route from "./routes/route";
+import Abstracts, { PathInfo } from "./routes/abstracts";
+import Controller from "./routes/controller"
+import Redirect from "./routes/redirect"
+import RequisiteInitializer from "./core/requisite-initializer";
+import WayDetails from "./routes/way-details";
+import Authentication from "./security/authentications/authentication";
+import JWTAuthentication from "./security/authentications/jwt-authentication";
+import BasicAuthentication from "./security/authentications/basic-authentication";
+import AuthenticatedGuard from "./security/guards/authenticated.guard";
+import AnonymousGuard from "./security/guards/anonymous.guard";
+import Guard from "./security/guards/guard";
+import UserDetails from "./security/user-details";
+import Resources from "./core/resources";
+import { AsyncFunction, Class, UserProvider, Event, EventType } from "./misc/custom-types";
+import * as HttpErrorResponse from "./misc/standard-responses";
+import { Requisites, RequisiteManager, RequisitePackage } from "./core/requisites";
+import { GlobalConfig } from "./configs/global";
+
 export {
   Overseer,
   Router,
@@ -57,6 +59,8 @@ export {
   PathInfo
 };
 
-if(process.argv[2] === 'overseer-dev') {
+
+
+if (process.argv[2] === 'overseer-dev') {
   Overseer.serve(module, 8000);
 }

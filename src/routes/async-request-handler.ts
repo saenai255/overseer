@@ -1,15 +1,15 @@
 import { IncomingMessage, ServerResponse } from "http";
-import Router from "./Router";
-import RouteUtils from "./RouteUtils";
-import Response from "./Response";
-import HttpError from "../errors/HttpError";
-import Route from "./Route";
-import Redirect from "./Redirect";
-import { PathInfo } from "./Abstracts";
-import { INTERVAL_SERVER_ERROR, UNSUPPORTED_MEDIA_TYPE } from "../misc/StandardResponses";
-import CoreError from "../errors/CoreError";
-import Converter from "../converters/Converter";
-import Requisites from "../core/Requisites";
+import Router from "./router";
+import RouteUtils from "./route-utils";
+import Response from "./response";
+import HttpError from "../errors/http-error";
+import Route from "./route";
+import Redirect from "./redirect";
+import { PathInfo } from "./abstracts";
+import { INTERVAL_SERVER_ERROR, UNSUPPORTED_MEDIA_TYPE } from "../misc/standard-responses";
+import CoreError from "../errors/core-error";
+import Converter from "../converters/converter";
+import { Requisites } from "../core/requisites";
 
 export default class AsyncRequestHandler {
     private foundRoute: Route;

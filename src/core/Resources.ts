@@ -1,6 +1,6 @@
 import fs from "fs";
 import {ServerResponse} from "http";
-import MimeFinder from "../misc/MimeFinder";
+import MimeFinder from "../misc/mime-finder";
 import path from 'path';
 import logger from "@jeaks03/logger";
 import { promisify } from "util";

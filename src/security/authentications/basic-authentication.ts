@@ -1,8 +1,6 @@
-import Authentication from "./Authentication";
-import Abstracts from "../../routes/Abstracts";
-import UserDetails from "../UserDetails";
-import HttpError from "../../errors/HttpError";
-import { UNAUTHORIZED } from "../../misc/StandardResponses";
+import Authentication from "./authentication";
+import Abstracts from "../../routes/abstracts";
+import UserDetails from "../user-details";
 
 export default class BasicAuthentication extends Authentication {
     public async authenticate(info: Abstracts<any, any, any>): Promise<UserDetails> {

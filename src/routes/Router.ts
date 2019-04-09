@@ -1,8 +1,8 @@
-import Route from "./Route";
+import Route from "./route";
 import http, { IncomingMessage, ServerResponse } from "http";
-import Resources from "../core/Resources";
+import Resources from "../core/resources";
 import logger from "@jeaks03/logger";
-import AsyncRequestHandler from "./AsyncRequestHandler";
+import AsyncRequestHandler from "./async-request-handler";
 
 export default class Router {
     public readonly routes: Route[];

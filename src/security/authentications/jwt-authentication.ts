@@ -1,11 +1,11 @@
-import Authentication from "./Authentication";
-import UserDetails from "../UserDetails";
-import Abstracts from "../../routes/Abstracts";
-import HttpError from "../../errors/HttpError";
-import { UserProvider } from "../../misc/CustomTypes";
-import { UNAUTHORIZED, BAD_REQUEST } from "../../misc/StandardResponses";
+import Authentication from "./authentication";
+import UserDetails from "../user-details";
+import Abstracts from "../../routes/abstracts";
+import HttpError from "../../errors/http-error";
+import { UserProvider } from "../../misc/custom-types";
+import { UNAUTHORIZED, BAD_REQUEST } from "../../misc/standard-responses";
 import * as jwt from "jsonwebtoken";
-import Pathway from "../../decorators/Pathway";
+import Pathway from "../../decorators/pathway";
 
 export default class JWTAuthentication extends Authentication {
     /**

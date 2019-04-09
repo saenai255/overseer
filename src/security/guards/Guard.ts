@@ -1,6 +1,5 @@
-import { IncomingMessage } from "http";
-import Abstracts from "../../routes/Abstracts";
-import UserDetails from "../UserDetails";
+import Abstracts from "../../routes/abstracts";
+import UserDetails from "../user-details";
 
 export default interface Guard {
     canAccess(user: UserDetails, info: Abstracts<any, any, any>): boolean;

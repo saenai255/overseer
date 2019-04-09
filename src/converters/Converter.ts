@@ -1,5 +1,3 @@
-import { Class } from "../misc/CustomTypes";
-
 export default class Converter {
     public getContentType(): string {
         throw new Error('Method not implemented');
