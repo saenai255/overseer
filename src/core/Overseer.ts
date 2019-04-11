@@ -3,24 +3,25 @@ import Route from "../routes/route";
 import Resources from "./resources";
 import MimeFinder from "../misc/mime-finder";
 import logger from "@jeaks03/logger";
-import { Requisites, RequisitePackage } from "./requisites";
+import { Requisites } from "./requisites";
 import { performance } from "perf_hooks";
 import { EventType, MetaInstance, MetaClass } from "../misc/custom-types";
 import path from "path";
-import Requisite from "../decorators/requisite";
 import { GlobalConfig } from "../configs/global";
 import Events, { IEvents } from "./events";
+import fs from 'fs';
 
 export default class Overseer {
     private static instance: Overseer;
+    private static packages: string[] = [ '@jeaks03/overseer' ];
 
     private constructor(private basePath: string, private port: number) {
         Overseer.instance = Overseer.instance || this;
         logger.info(this, 'Initialized in base directory {}', basePath);
     }
 
-    public static loadPackages(packs: RequisitePackage[] = []) {
-        packs.flatMap(pack => pack.classList).forEach(clazz => Requisites.addClass(clazz));
+    public static loadPackages(packs: string[] = []): typeof Overseer {
+        packs.forEach(pack => Overseer.packages.push(pack));
         return Overseer;
     }
 
@@ -36,8 +37,7 @@ export default class Overseer {
     
     private init(): void {
         this.loadPrerequisites();
-
-        Requisites.findClassesFromSourceFiles(this.basePath);
+        this.loadLibs();
         this.initializeRequisites();
         this.setupRouter();
         this.performLifeCycles();
@@ -45,6 +45,33 @@ export default class Overseer {
         (Requisites.find(Events) as unknown as IEvents).dispatch(EventType.AfterFinishStartup);
 
         logger.info(this, '{} a total of {} requisites from sources', GlobalConfig.isLibraryPackage ? 'Packed' : 'Loaded', Requisites.instances().length);
+    }
+
+    private loadLibs(): void {
+        Requisites.findClassesFromSourceFiles(this.basePath);
+
+        debugger
+        let currentDir = module.filename; 
+
+        do {
+            currentDir = path.join(currentDir, '..');
+        } while( !fs.readdirSync(currentDir).find(dir => dir === 'node_modules') );
+
+        currentDir = path.join(currentDir, './node_modules');
+
+        Overseer.packages.filter(item => {
+            const packageExists = fs.existsSync(path.join(currentDir, item));
+
+            if(!packageExists) {
+                logger.error('PackageLoader', 'Could not find package: `{}`', item)
+            }
+
+            return packageExists;
+
+        }).forEach(item => {
+            const packagePath = path.join(currentDir, item);
+            Requisites.findClassesFromSourceFiles(packagePath);
+        });
     }
 
     private performLifeCycles(): void {
@@ -60,7 +87,7 @@ export default class Overseer {
             if(!!instance.__proto__.initialize) {
                 const requisites: any[] = instance.__proto__.initialize.bind(instance).call();
                 requisites.forEach(requisiteInstance => (
-                    Requisite(requisiteInstance.__proto__.constructor), 
+                //    Requisite(requisiteInstance.__proto__.constructor), 
                     Requisites.addInstance(requisiteInstance)))
             }
         });
@@ -70,13 +97,7 @@ export default class Overseer {
     private loadPrerequisites(): void {
         const resources = new Resources(this.basePath,  new MimeFinder());
 
-
         Requisites.addInstance(new Events());
-      // Requisites.addClass(FormDataConverter);
-      // Requisites.addClass(JsonConverter);
-     //  Requisites.addClass(XWWWFormUrlEncoded);
-      // Requisites.addClass(Authorizer);
-
         Requisites.addInstance(this);
         Requisites.addInstance(resources);
         Requisites.addInstance(new Router(this.port, resources));
@@ -94,7 +115,6 @@ export default class Overseer {
     }
 
     private initializeRequisites(): void {
-        debugger
         // tslint:disable-next-line: array-type
         let metaClasses: MetaClass<any>[] = [ ...Requisites.classes() ];
         const metaInstances: MetaInstance[] = [ ...Requisites.instances() ];

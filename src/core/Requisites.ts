@@ -7,14 +7,7 @@ export class RequisiteManager {
     private classList = [];
     private instanceList = [];
 
-    //public pack(module: NodeModule) {
-     //   return RequisitePackage.of(
-      //      ...this.findClassesFromSourceFiles(path.join(module.filename, '..'), true)
-      //  )
-  //  }
-
     public addClass(clazz: Class<any>) {
-     //   Requisite(clazz);
         this.classList.push(clazz);
     }
 
