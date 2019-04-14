@@ -18,11 +18,11 @@ export function Pathway(baseDetails?: WayDetails): any {
         }
 
         if(!target.__shadowMeta) {
-            target.__shadowMeta = { };
+            target.__shadowMeta = {
+                routes: []
+             };
         }
-
-        target.__shadowMeta.routes = [];
-
+        
         target.__shadowMeta.routes.push(new Route(details, descriptor.value, target.constructor.name));
         return descriptor;
     }
