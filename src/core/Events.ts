@@ -6,7 +6,7 @@ export interface IEvents {
     dispatch(type: EventType): void
 }
 
-export default class Events {
+export class Events {
     private events: { type: EventType, handle: Event }[];
 
     constructor() {

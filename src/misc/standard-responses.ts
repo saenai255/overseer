@@ -1,14 +1,14 @@
-import Response from "../routes/response";
+import { Response } from "../routes/response";
 
-const getBase = (code, status) => {
+const getBase = (code, status): Response => {
     return {
         body: {
-            status: status,
+            status,
             statusCode: code,
             timestamp: new Date().getTime(),
         },
         status: code
-    } as Response
+    }
 }
 
 export const BAD_REQUEST = getBase(400, 'BAD_REQUEST');

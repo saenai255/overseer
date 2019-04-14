@@ -1,9 +1,16 @@
 import { Class } from "../misc/custom-types";
-import Utils from "../misc/utils";
 import { GlobalConfig } from "../configs/global";
+import { Utils } from "../misc/utils";
+import { Requisite } from "../decorators/requisite";
 
+export interface RestrictedRequisiteManager {
+    addInstance: (instance, isController?: boolean) => void;
+    find: <T>(clazz: Class<T>) => T;
+    findByName: <T>(className: string) => T;
+    findAll: <T>(clazz: Class<T>) => T[];
+}
 
-export class RequisiteManager {
+export class RequisiteManager implements RestrictedRequisiteManager {
     private classList = [];
     private instanceList = [];
 
@@ -11,7 +18,11 @@ export class RequisiteManager {
         this.classList.push(clazz);
     }
 
-    public addInstance(instance) {
+    public addInstance(instance, isController = false) {
+        if(isController) {
+            Requisite(instance.__proto__.constructor);
+        }
+        
         this.instanceList.push(instance);
     }
 
@@ -43,13 +54,13 @@ export class RequisiteManager {
     }
 }
 
-export class RequisitePackage {
-    public classList: Class<any>[];
+export interface ComposedPackage { }
 
-    public static of(...classes: Class<any>[]): RequisitePackage {
-        const pack = new RequisitePackage();
-        pack.classList = classes;
-        return pack;
+export class ComposedPackageImpl implements ComposedPackage {
+    constructor(private readonly nodeModule: NodeModule) { }
+
+    get module(): NodeModule {
+        return this.nodeModule;
     }
 }
 

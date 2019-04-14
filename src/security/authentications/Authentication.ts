@@ -1,9 +1,8 @@
-import { IncomingMessage } from "http";
-import Abstracts from "../../routes/abstracts";
-import UserDetails from "../user-details";
 import { UserProvider } from "../../misc/custom-types";
+import { Abstracts } from "../../routes/abstracts";
+import { UserDetails } from "../user-details";
 
-export default class Authentication {
+export class Authentication {
     constructor(protected userProvider: UserProvider) {
     }
 

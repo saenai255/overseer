@@ -1,6 +1,6 @@
-import Abstracts from "../../routes/abstracts";
-import UserDetails from "../user-details";
+import { UserDetails } from "../user-details";
+import { Abstracts } from "../../routes/abstracts";
 
-export default interface Guard {
+export interface Guard {
     canAccess(user: UserDetails, info: Abstracts<any, any, any>): boolean;
 }

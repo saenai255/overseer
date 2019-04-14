@@ -1,10 +1,10 @@
-import WayDetails from "./way-details";
-import Authorizer from "../security/authorizer.component";
-import Abstracts from "./abstracts";
 import { Requisites } from "../core/requisites";
 import { loopWhile } from 'deasync';
+import { WayDetails } from "./way-details";
+import { Abstracts } from "./abstracts";
+import { Authorizer } from "../security/authorizer.component";
 
-export default class Route {
+export class Route {
     constructor(public details: WayDetails, public handler: any, public handlerName: string) {
         let path = this.details.path;
 

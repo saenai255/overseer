@@ -1,8 +1,8 @@
-import Converter from "./converter";
-import Requisite from "../decorators/requisite";
+import { Converter } from "./converter";
+import { Requisite } from "../decorators/requisite";
 
 @Requisite
-export default class FormDataConverter extends Converter {
+export class FormDataConverter extends Converter {
     getContentType(): string {
         return 'multipart/form-data';
     }

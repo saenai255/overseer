@@ -1,6 +1,6 @@
 import { IncomingMessage } from "http";
 
-export default class RouteUtils {
+export class RouteUtils {
 
     public static routeMatches(baseUrl: string, basePattern: string): boolean {
         let url = this.getBaseUrl(baseUrl);

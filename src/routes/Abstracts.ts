@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
-import UserDetails from "../security/user-details";
+import { UserDetails } from "../security/user-details";
 
-export default class Abstracts<B, P, Q> {
+export class Abstracts<B, P, Q> {
     public raw: RawAbstracts;
     public body: B;
     public queryParams: Q;

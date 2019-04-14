@@ -4,7 +4,7 @@ import path from "path"
 import { loopWhile } from 'deasync';
 
 
-export default class Utils {
+export class Utils {
     public static clearPromise<T>(target: Promise<T>): T {
         let newTarget: T | Promise<T> = target;
 

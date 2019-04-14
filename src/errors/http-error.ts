@@ -1,8 +1,8 @@
 import { ServerResponse } from "http";
 import { INTERVAL_SERVER_ERROR } from "../misc/standard-responses";
-import Response from "../routes/response";
+import { Response } from "../routes/response";
 
-export default class HttpError extends Error {
+export class HttpError extends Error {
     constructor(public response: Response){
         super();
     }

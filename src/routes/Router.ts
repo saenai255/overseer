@@ -1,10 +1,11 @@
-import Route from "./route";
 import http, { IncomingMessage, ServerResponse } from "http";
-import Resources from "../core/resources";
 import logger from "@jeaks03/logger";
-import AsyncRequestHandler from "./async-request-handler";
+import { Route } from "./route";
+import { Resources } from "../core/resources";
+import { AsyncRequestHandler } from "./async-request-handler";
+import { AfterInit } from "../decorators/lifecycle";
 
-export default class Router {
+export class Router {
     public readonly routes: Route[];
     public readonly routeTree: any;
     public readonly routeSym: symbol;
@@ -15,8 +16,11 @@ export default class Router {
         this.routeSym = Symbol('Route object index');
     }
 
-    public init(): void {
+   @AfterInit()
+    public initializeServer(): void {
         const server = http.createServer((req: IncomingMessage, res: ServerResponse) => AsyncRequestHandler.doHandle(req, res, this));
+        server.on('listening', () => logger.info(this, 'HTTP Server started listening on port {} using {}', (server.address() as any).port, (server.address() as any).family))
+        server.on('close', () => logger.warn(this, 'HTTP Server stopped listening'))
         server.listen(this.port);
     }
 

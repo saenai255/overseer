@@ -1,13 +1,13 @@
-import Route from "../routes/route";
-import WayDetails from "../routes/way-details";
 import { AsyncFunction, MetaInstance } from "../misc/custom-types";
 import logger from "@jeaks03/logger";
-import Router from "../routes/Router";
+import { WayDetails } from "../routes/way-details";
+import { Router } from "../routes/router";
+import { Route } from "../routes/route";
 
 /**
  * Used to specify an endpoint
  */
-export default function Pathway(baseDetails?: WayDetails): any {
+export function Pathway(baseDetails?: WayDetails): any {
     const details = WayDetails.defaults(baseDetails);
 
     // tslint:disable-next-line
@@ -18,10 +18,10 @@ export default function Pathway(baseDetails?: WayDetails): any {
         }
 
         if(!target.__shadowMeta) {
-            target.__shadowMeta = {
-                routes: []
-            }
+            target.__shadowMeta = { };
         }
+
+        target.__shadowMeta.routes = [];
 
         target.__shadowMeta.routes.push(new Route(details, descriptor.value, target.constructor.name));
         return descriptor;

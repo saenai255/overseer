@@ -1,6 +1,6 @@
 import { Requisites } from "../core/requisites";
-import Router from "../routes/router";
-import Route from "../routes/route";
+import { Router } from "../routes/router";
+import { Route } from "../routes/route";
 import logger from "@jeaks03/logger";
 import { ShadowMeta, Class, MetaClass } from "../misc/custom-types";
 import { GlobalConfig } from "../configs/global";
@@ -13,7 +13,7 @@ const getShadowMeta = <T>(target: MetaClass<T>): ShadowMeta => {
     return target.prototype.__shadowMeta;
 }
 
-const Requisite: ClassDecorator = <T>(target: MetaClass<T> | any) => {
+export const Requisite: ClassDecorator = <T>(target: MetaClass<T> | any) => {
     if(GlobalConfig.isLibraryPackage) {
         return;
     }
@@ -32,8 +32,6 @@ const Requisite: ClassDecorator = <T>(target: MetaClass<T> | any) => {
         shadowMeta = getShadowMeta(target);
     }
 
-    // Reflect.getOwnMetadata("design:paramtypes", target)[1].constructor
-
     shadowMeta.required = Reflect.getOwnMetadata("design:paramtypes", target) || [];
     const foundRoutes = shadowMeta.routes;
     if(foundRoutes) {
@@ -45,5 +43,3 @@ const Requisite: ClassDecorator = <T>(target: MetaClass<T> | any) => {
         });
     }
 }
-
-export default Requisite;

@@ -1,7 +1,7 @@
-import Guard from "../security/guards/guard";
 import { Class } from "../misc/custom-types";
+import { Guard } from "../security/guards/guard";
 
-export default class WayDetails {
+export class WayDetails {
 
     public static defaults(details: WayDetails): WayDetails {
         return {

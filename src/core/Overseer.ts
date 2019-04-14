@@ -1,97 +1,71 @@
-import Router from "../routes/router";
-import Route from "../routes/route";
-import Resources from "./resources";
-import MimeFinder from "../misc/mime-finder";
 import logger from "@jeaks03/logger";
-import { Requisites } from "./requisites";
+import { Requisites, ComposedPackage, ComposedPackageImpl } from "./requisites";
 import { performance } from "perf_hooks";
-import { EventType, MetaInstance, MetaClass } from "../misc/custom-types";
+import { EventType, MetaInstance, MetaClass, Class, AsyncFunction, ShadowMeta } from "../misc/custom-types";
 import path from "path";
 import { GlobalConfig } from "../configs/global";
-import Events, { IEvents } from "./events";
-import fs from 'fs';
+import { Events, IEvents } from "./events";
+import { Resources } from "./resources";
+import { MimeFinder } from "../misc/mime-finder";
+import { Router } from "../routes/router";
+import { Route } from "../routes/route";
+import { LifecycleEventType } from "../decorators/lifecycle";
 
-export default class Overseer {
+export class Overseer {
     private static instance: Overseer;
-    private static packages: string[] = [ '@jeaks03/overseer' ];
+    private static packages: ComposedPackageImpl[] = [];
 
-    private constructor(private basePath: string, private port: number) {
+    private constructor(private port: number) {
         Overseer.instance = Overseer.instance || this;
-        logger.info(this, 'Initialized in base directory {}', basePath);
+        logger.info(this, 'Initialized in base directory {}', this.basePath);
     }
 
-    public static loadPackages(packs: string[] = []): typeof Overseer {
-        packs.forEach(pack => Overseer.packages.push(pack));
+    public static loadPackages(packages: ComposedPackage[]): typeof Overseer {
+        packages.forEach(pack => Overseer.packages.push(pack as ComposedPackageImpl));
         return Overseer;
     }
 
-    public static serve(nodeModule: NodeModule, port: number): void {
+    public static composePackage(nodeModule: NodeModule): ComposedPackage {
+        return new ComposedPackageImpl(nodeModule);
+    }
+
+    public static serve(port: number): void {
         const timeStart = performance.now();
 
-        Overseer.instance = new Overseer(path.join(nodeModule.filename, '..'), port);
-        Overseer.instance.init();
+        Overseer.instance = new Overseer(port);
+        Overseer.instance.init().then(() => {
+            const timeEnd = performance.now();
+            logger.info(this, 'Application started running in {} seconds', Math.ceil(timeEnd - timeStart) / 1000)
+        });
 
-        const timeEnd = performance.now();
-        logger.info(this, 'Application started running in {} seconds on port {}', Math.ceil(timeEnd - timeStart) / 1000, port)
+    }
+
+    private get basePath(): string {
+        let rootModule = module;
+        while(rootModule.parent) {
+            rootModule = rootModule.parent;
+        }
+
+        return path.join(rootModule.filename, '..');
     }
     
-    private init(): void {
+    private async init(): Promise<void> {
         this.loadPrerequisites();
         this.loadLibs();
-        this.initializeRequisites();
-        this.setupRouter();
-        this.performLifeCycles();
+        await this.initializeRequisites();
+        // this.setupRouter();
+        await this.triggerAfterStartupLifecycle();
         
-        (Requisites.find(Events) as unknown as IEvents).dispatch(EventType.AfterFinishStartup);
-
         logger.info(this, '{} a total of {} requisites from sources', GlobalConfig.isLibraryPackage ? 'Packed' : 'Loaded', Requisites.instances().length);
     }
 
     private loadLibs(): void {
         Requisites.findClassesFromSourceFiles(this.basePath);
 
-        debugger
-        let currentDir = module.filename; 
-
-        do {
-            currentDir = path.join(currentDir, '..');
-        } while( !fs.readdirSync(currentDir).find(dir => dir === 'node_modules') );
-
-        currentDir = path.join(currentDir, './node_modules');
-
-        Overseer.packages.filter(item => {
-            const packageExists = fs.existsSync(path.join(currentDir, item));
-
-            if(!packageExists) {
-                logger.error('PackageLoader', 'Could not find package: `{}`', item)
-            }
-
-            return packageExists;
-
-        }).forEach(item => {
-            const packagePath = path.join(currentDir, item);
-            Requisites.findClassesFromSourceFiles(packagePath);
-        });
-    }
-
-    private performLifeCycles(): void {
-        Requisites.instances().forEach(instance => {
-            // onInit
-            if(!!instance.__proto__.onInit && !instance.__proto__.onInitCompleted) {
-                instance.__proto__.onInit.bind(instance).call();
-                instance.__proto__.onInitCompleted = true;
-            }
-
-
-            // is configurer
-            if(!!instance.__proto__.initialize) {
-                const requisites: any[] = instance.__proto__.initialize.bind(instance).call();
-                requisites.forEach(requisiteInstance => (
-                //    Requisite(requisiteInstance.__proto__.constructor), 
-                    Requisites.addInstance(requisiteInstance)))
-            }
-        });
-
+        const myModule = module;
+        Overseer.packages
+            .map(item => path.join(item.module.filename, '..'))
+            .forEach(item => Requisites.findClassesFromSourceFiles(item));
     }
 
     private loadPrerequisites(): void {
@@ -111,18 +85,22 @@ export default class Overseer {
             route.handler.bind(controller);
         });
 
-        router.init();
+        router.initializeServer();
     }
 
-    private initializeRequisites(): void {
+    private async initializeRequisites(): Promise<void> {
         // tslint:disable-next-line: array-type
         let metaClasses: MetaClass<any>[] = [ ...Requisites.classes() ];
-        const metaInstances: MetaInstance[] = [ ...Requisites.instances() ];
 
         const addInstance = (metaClass: MetaClass<any>, metaInstance: MetaInstance) => {
-            metaClasses = metaClasses.filter(item => item !== metaClass);
-            metaInstances.push(metaInstance);
+            if(!Requisites.instances().includes(metaInstance)) {
+                Requisites.instances().push(metaInstance);
+            }
         };
+
+        const removeMetaClass = (metaClass: MetaClass<any>, metaClassesParam: Array<MetaClass<any>>): Array<MetaClass<any>> => {
+            return metaClassesParam.filter(item => item !== metaClass);
+        }
 
         // Should be enough
         let stackLimit = 5000;
@@ -130,17 +108,18 @@ export default class Overseer {
             for(const metaClass of metaClasses) {
                 // Constructor doesn't require any other dependencies
                 if(!metaClass.prototype.__shadowMeta.required) {
-                    addInstance(metaClass, new metaClass());
-                    continue;
+                    metaClass.prototype.__shadowMeta.required = []; // Just in case
                 }
 
                 // Dependencies are not instantiated yet
-                if(!this.canInstantiate(metaClass, metaInstances)) {
+                if(!this.canInstantiate(metaClass)) {
                     continue;
                 }
 
                 // All OK. Create instance and add to array
-                addInstance(metaClass, this.instantiateMetaClass(metaClass, metaInstances));
+                addInstance(metaClass, await this.instantiateMetaClass(metaClass));
+                // Update remaining meta classes
+                metaClasses = removeMetaClass(metaClass, metaClasses);
             }
 
             if(--stackLimit < 0) {
@@ -148,16 +127,14 @@ export default class Overseer {
                 throw new Error(`Dependency injection stack overflow!`)
             }
         }
-
-        metaInstances.forEach(item => Requisites.addInstance(item));
     }
 
-    private instantiateMetaClass(metaClass: MetaClass<any>, resources: any[]): MetaInstance {
-        const required = metaClass.prototype.__shadowMeta.required as Array<MetaClass<any>>;
+    private async instantiateMetaClass(metaClass: MetaClass<any>): Promise<MetaInstance> {
+        const required = metaClass.prototype.__shadowMeta.required as Array<MetaClass<any>> || [];
         const args = [];
 
         for(const requiredClass of required) {
-            for(const resource of resources) {
+            for(const resource of Requisites.instances()) {
                 if(requiredClass === resource.constructor) {
                     args.push(resource);
                     break;
@@ -165,16 +142,45 @@ export default class Overseer {
             }
         }
 
-        return new metaClass(...args) as MetaInstance;
+        const metaInstance = new metaClass(...args) as MetaInstance
+        await this.performLifecycle(metaInstance, 'onInit');
+
+        return metaInstance;
     }
 
-    private canInstantiate(metaClass: MetaClass<any>, resources: any[]) {
+    private async triggerAfterStartupLifecycle() {
+        const metaInstances: MetaInstance[] = Requisites.instances();
+
+        for(const metaInstance of metaInstances) {
+            await this.performLifecycle(metaInstance, 'afterInit');
+        }
+    }
+
+    private async performLifecycle(metaInstance: MetaInstance, lifecycle: LifecycleEventType) {
+        const shadowMeta: ShadowMeta = (metaInstance as any).__proto__.__shadowMeta;
+
+        if(!shadowMeta || !shadowMeta.lifecycle || !shadowMeta.lifecycle[lifecycle]) {
+            return;
+        }
+
+        const fn: () => void = shadowMeta.lifecycle[lifecycle].bind(metaInstance);
+
+        if(fn) {
+            if(fn instanceof AsyncFunction) {
+                await fn();
+            } else {
+                fn()
+            }
+        }
+    }
+
+    private canInstantiate(metaClass: MetaClass<any>) {
         const required = [ ...metaClass.prototype.__shadowMeta.required as Array<MetaClass<any>> ];
 
         for(const requiredClass of required) {
             let found = false;
 
-            for(const resource of resources) {
+            for(const resource of Requisites.instances()) {
                 if(requiredClass === resource.constructor) {
                     found = true;
                     break;

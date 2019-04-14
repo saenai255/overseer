@@ -1,8 +1,8 @@
-import Converter from "./converter";
-import Requisite from "../decorators/requisite";
+import { Requisite } from "../decorators/requisite";
+import { Converter } from "./converter";
 
 @Requisite
-export default class JsonConverter extends Converter {
+export class JsonConverter extends Converter {
     getContentType(): string {
         return 'application/json';
     }

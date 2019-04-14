@@ -1,5 +1,6 @@
-import UserDetails from "../security/user-details";
-import Route from "../routes/Route";
+import { UserDetails } from "../security/user-details";
+import { Route } from "../routes/route";
+import { LifecycleCallbacks } from "../decorators/lifecycle";
 
 export interface Class<T> {
     new (...args: any[]): T,
@@ -21,7 +22,8 @@ export const AsyncFunction = (async () => {}).constructor;
 export interface ShadowMeta {
     isRequisite?: boolean;
     routes?: Route[];
-    required?: any[] | MetaClass<any>[];
+    required?: any[] | Array<MetaClass<any>>;
+    lifecycle?: LifecycleCallbacks;
 }
 
 declare type ClassDecorator = <T extends Function>(target: T) => T | void;

@@ -1,11 +1,11 @@
 import fs from "fs";
 import {ServerResponse} from "http";
-import MimeFinder from "../misc/mime-finder";
 import path from 'path';
 import logger from "@jeaks03/logger";
 import { promisify } from "util";
+import { MimeFinder } from "../misc/mime-finder";
 
-export default class Resources {
+export class Resources {
   private static readonly BASE_RELATIVE_RESOURCES_DIRECTORY =  '../resources';
   private static readonly RESOURCES_RELATIVE_PUBLIC_DIRECTORY =  './public';
 

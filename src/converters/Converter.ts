@@ -1,4 +1,4 @@
-export default class Converter {
+export class Converter {
     public getContentType(): string {
         throw new Error('Method not implemented');
     }

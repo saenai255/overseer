@@ -1,7 +1,7 @@
 import mime from "./MimeTypes.json";
 
 
-export default class MimeFinder {
+export class MimeFinder {
   private readonly mimeTypes: any;
 
   constructor() {
