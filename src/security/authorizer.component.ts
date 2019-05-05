@@ -16,7 +16,7 @@ export class Authorizer {
 
     @AfterInit()
     onStart() {
-        this.auth = Requisites.find(Authentication) || new NoAuthentication(null);
+        this.auth = Requisites.find(Authentication) || new NoAuthentication();
         logger.info(this, 'Proceeding with {} security', this.auth.constructor.name)
     }
 

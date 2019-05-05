@@ -1,46 +1,52 @@
 import { UserProvider } from "../../misc/custom-types";
 import { UNAUTHORIZED, BAD_REQUEST } from "../../misc/standard-responses";
 import * as jwt from "jsonwebtoken";
-import { Authentication } from "./authentication";
+import { Authentication, PasswordEncoder } from "./authentication";
 import { Pathway } from "../../decorators/pathway";
 import { PathInfo } from "../../routes/abstracts";
 import { HttpError } from "../../errors/http-error";
 import { UserDetails } from "../user-details";
+import { BasicAuthentication } from "./basic-authentication";
 
 export class JWTAuthentication extends Authentication {
     /**
      * @param expiresIn time in milliseconds or a string like '5h', '15m', etc. until the token expires
      */
-    constructor(private expiresIn: number | string, userProvider: UserProvider){
-        super(userProvider);
+    constructor(private expiresIn: number | string,
+            userProvider: UserProvider,
+            passwordEncoder: PasswordEncoder,
+            private secret: string
+            ) {
+
+        super(userProvider, passwordEncoder);
         this.expiresIn = expiresIn;
     }
 
     @Pathway({path: '/access-token'})
     public createAccessToken(info: PathInfo) {
         return (async () => {
-            const authHeader = info.raw.request.headers.authorization;
-            if(!authHeader || !authHeader.includes('Basic ') || authHeader.length < 10) {
-                throw new HttpError(BAD_REQUEST);
-            }
+            const basicAuth = new BasicAuthentication(this.userProvider, this.passwordEncoder)
+            const foundUser = await basicAuth.authenticate(info);
 
-            const [username, password] = Buffer.from(authHeader.split('Basic ')[1], 'base64').toString('utf8').split(':');
-            const foundUser = await this.userProvider(username);
-
-            if(!foundUser || foundUser.password !== password) {
+            if(!foundUser) {
                 throw new HttpError(UNAUTHORIZED);
             }
 
-            foundUser.password = undefined;
-
-            const token = jwt.sign({user: foundUser}, password, {expiresIn: this.expiresIn});
-            const out = jwt.decode(token);
-
-            return {
-                token,
-                ...out
-            };
+            return this.generateToken(foundUser);
         })();
+    }
+
+    public generateToken<T extends UserDetails>(user: T): ExplicitJwtToken<T> {
+        const purifiedUser = { ...user };
+        delete purifiedUser.password;
+
+        const token = jwt.sign({ user: purifiedUser }, this.secret, { expiresIn: this.expiresIn });
+        const out = jwt.decode(token) as { user: T };
+
+        return {
+            token,
+            ...out
+        };
     }
 
     public async authenticate(info: PathInfo): Promise<UserDetails> {
@@ -50,7 +56,7 @@ export class JWTAuthentication extends Authentication {
         }
 
         const token = authHeader.split('Bearer ')[1];
-        const { user } = jwt.decode(token) as JwtToken;
+        const { user } = jwt.decode(token) as JwtToken<UserDetails>;
         const foundUser = await this.userProvider(user.username);
 
         if(!foundUser) {
@@ -58,7 +64,7 @@ export class JWTAuthentication extends Authentication {
         }
 
         try {
-            jwt.verify(token, foundUser.password)
+            jwt.verify(token, this.secret)
             return foundUser;
         } catch {
             return null;
@@ -67,8 +73,13 @@ export class JWTAuthentication extends Authentication {
 
 }
 
-interface JwtToken {
+export interface JwtToken<T extends UserDetails> {
     iat: number;
     exp: number;
-    user: UserDetails;
+    user: T;
+}
+
+export interface ExplicitJwtToken<T extends UserDetails> {
+    token: string;
+    user: T;
 }

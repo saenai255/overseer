@@ -1,6 +1,6 @@
 {
   "name": "@jeaks03/overseer",
-  "version": "1.2.29",
+  "version": "1.2.33",
   "description": "Just another TypeScript Back-End framework",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
@@ -81,6 +81,7 @@
   "dependencies": {
     "@jeaks03/cached": "*",
     "@jeaks03/logger": "*",
+    "@types/jsonwebtoken": "^8.3.2",
     "axios": "^0.18.0",
     "deasync": "^0.1.14",
     "jsonwebtoken": "^8.4.0",
