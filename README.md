@@ -1,3 +1,7 @@
+# Abandonware
+
+Do not use this please.
+
 # Overseer
 
 Overseer is a Typescript Aspect-Oriented framework for backend which takes inspiration from Spring-boot and Angular.
